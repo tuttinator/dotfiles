@@ -20,3 +20,6 @@ export GOPATH=$HOME/go
 
 # Customize to your needs...
 export PATH=$PATH:$HOME/bin
+
+alias condaup=source $HOME/miniconda/bin/activate
+alias vim=nvim
