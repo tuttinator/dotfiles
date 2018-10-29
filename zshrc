@@ -49,15 +49,4 @@ export PATH="$HOME/.rbenv/bin:$PATH"
 source $ZSH/oh-my-zsh.sh
 
 # Customize to your needs...
-export PATH=$PATH:$HOME/bin:/usr/local/bin:/usr/bin:/bin:/usr/sbin:/sbin:/usr/libexec
-
-alias bower='noglob bower'
-alias rake='noglob rake'
-
-eval "$(rbenv init -)"
-
-
-# BEGIN Ruboto setup
-source ~/.rubotorc
-# END Ruboto setup
-
+export PATH=$PATH:$HOME/bin

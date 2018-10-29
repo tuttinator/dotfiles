@@ -1,10 +1,6 @@
 [user]
 	name = Caleb Tutty
-	email = caleb@carnivallabs.com
-[credential]
-  helper = osxkeychain
-[achievement]
-  upload = true
+	email = caleb.tutty@gmail.com
 [alias]
   st = status
   ci = commit
