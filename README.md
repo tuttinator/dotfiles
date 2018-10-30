@@ -9,6 +9,5 @@
  ░░░░░░  ░░░░░░     ░░    ░░   ░░ ░░░  ░░░░░░ ░░░░░░
 
 ```
-ASCII art pinched from [here](https://github.com/xero/dotfiles)
 
 Dotfiles repo
