@@ -22,6 +22,7 @@ setopt inc_append_history # save history entries as soon as they are entered
 setopt share_history # share history between different instances
 setopt correct_all # autocorrect commands
 setopt interactive_comments # allow comments in interactive shells
+setopt prompt_subst # required for bullet train theme
 # Improve autocompletion style
 zstyle ':completion:*' menu select # select completions with arrow keys
 zstyle ':completion:*' group-name '' # group results by category
