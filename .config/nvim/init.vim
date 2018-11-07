@@ -145,6 +145,14 @@ Plug 'airblade/vim-gitgutter'   " See working dir changes, stage hunks from vim
 " Plug 'martinda/Jenkinsfile-vim-syntax'
 " Plug 'LnL7/vim-nix'
 
+" Typescript
+Plug 'HerringtonDarkholme/yats.vim'
+Plug 'mhartington/nvim-typescript', {'do': './install.sh'}
+" For async completion
+Plug 'Shougo/deoplete.nvim'
+" For Denite features
+Plug 'Shougo/denite.nvim'
+
 Plug 'godlygeek/tabular'               " md: plasticboy/vim-markdown dependency
 Plug 'plasticboy/vim-markdown'         " md: Markdown support
 Plug 'junegunn/vim-easy-align'         " md: Align tables
