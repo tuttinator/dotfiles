@@ -52,3 +52,11 @@ antibody bundle caiogondim/bullet-train-oh-my-zsh-theme
 
 alias condaup=source /opt/miniconda/bin/activate
 alias vim=nvim
+
+if [[ -a $HOME/.asdf/asdf.sh ]]; then
+  .  $HOME/.asdf/asdf.sh
+fi;
+
+if [[ -a $HOME/.asdf/completions/asdf.bash ]]; then
+  .  $HOME/.asdf/completions/asdf.bash
+fi;
