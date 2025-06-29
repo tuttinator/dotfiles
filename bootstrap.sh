@@ -170,7 +170,12 @@ else
 fi
 
 # Generate plugins using antidote in zsh context
-zsh -c "source '$ANTIDOTE_PATH' && antidote bundle < '$DOTFILES_DIR/zsh/zsh_plugins.txt'" > ~/.zsh_plugins.sh
+log_info "Installing and bundling Zsh plugins..."
+zsh -c "
+    source '$ANTIDOTE_PATH'
+    antidote install < '$DOTFILES_DIR/zsh/zsh_plugins.txt'
+    antidote bundle < '$DOTFILES_DIR/zsh/zsh_plugins.txt'
+" > ~/.zsh_plugins.sh
 log_success "Zsh plugins configured with Antidote"
 
 ###############################################################################
