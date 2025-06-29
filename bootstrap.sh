@@ -162,16 +162,15 @@ export PATH="$BREW_PREFIX/bin:$PATH"
 # Source Antidote
 ANTIDOTE_PATH="$BREW_PREFIX/opt/antidote/share/antidote/antidote.zsh"
 if [[ -f "$ANTIDOTE_PATH" ]]; then
-    source "$ANTIDOTE_PATH"
-    log_success "Antidote sourced from $ANTIDOTE_PATH"
+    log_success "Antidote found at $ANTIDOTE_PATH"
 else
     log_error "Antidote not found at $ANTIDOTE_PATH"
     log_error "It should have been installed via Brewfile. Try running: brew install antidote"
     exit 1
 fi
 
-# Generate plugins using antidote
-antidote bundle < "$DOTFILES_DIR/zsh/zsh_plugins.txt" > ~/.zsh_plugins.sh
+# Generate plugins using antidote in zsh context
+zsh -c "source '$ANTIDOTE_PATH' && antidote bundle < '$DOTFILES_DIR/zsh/zsh_plugins.txt'" > ~/.zsh_plugins.sh
 log_success "Zsh plugins configured with Antidote"
 
 ###############################################################################
@@ -295,6 +294,20 @@ if command -v npm &> /dev/null; then
     log_success "Claude Code installed globally"
 else
     log_warning "npm not found, skipping Claude Code installation"
+fi
+
+# Setup VS Code 'code' command in PATH
+log_info "Setting up VS Code 'code' command..."
+if [[ -d "/Applications/Visual Studio Code.app" ]]; then
+    # Create symlink for the code command if it doesn't exist
+    if ! command -v code &> /dev/null; then
+        sudo ln -sf "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" /usr/local/bin/code
+        log_success "VS Code 'code' command installed"
+    else
+        log_success "VS Code 'code' command already available"
+    fi
+else
+    log_warning "Visual Studio Code not found in /Applications, skipping 'code' command setup"
 fi
 
 log_success "Additional tools configured"
