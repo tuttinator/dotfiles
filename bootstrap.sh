@@ -53,19 +53,28 @@ fi
 log_info "Installing Homebrew..."
 if ! command -v brew &> /dev/null; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
-
-    # Add Homebrew to PATH for current session
-    if [[ $(uname -m) == 'arm64' ]]; then
-        eval "$(/opt/homebrew/bin/brew shellenv)"
-        echo 'eval "$(/opt/homebrew/bin/brew shellenv)"' >> ~/.zprofile
-    else
-        eval "$(/usr/local/bin/brew shellenv)"
-        echo 'eval "$(/usr/local/bin/brew shellenv)"' >> ~/.zprofile
-    fi
-
     log_success "Homebrew installed successfully"
 else
     log_success "Homebrew already installed"
+fi
+
+# Ensure Homebrew is in PATH for current session and future sessions
+if [[ $(uname -m) == 'arm64' ]]; then
+    BREW_PREFIX="/opt/homebrew"
+else
+    BREW_PREFIX="/usr/local"
+fi
+
+# Add to current session
+eval "$($BREW_PREFIX/bin/brew shellenv)"
+
+# Add to .zprofile if not already present
+BREW_SHELLENV_LINE="eval \"\$($BREW_PREFIX/bin/brew shellenv)\""
+if ! grep -q "$BREW_SHELLENV_LINE" ~/.zprofile 2>/dev/null; then
+    echo "$BREW_SHELLENV_LINE" >> ~/.zprofile
+    log_success "Added Homebrew to .zprofile"
+else
+    log_success "Homebrew already configured in .zprofile"
 fi
 
 ###############################################################################
@@ -141,13 +150,29 @@ fi
 # 6. Setup Zsh plugins with Antidote
 ###############################################################################
 log_info "Setting up Zsh plugins with Antidote..."
+
+# Ensure Homebrew binaries are in PATH for current session
+if [[ $(uname -m) == 'arm64' ]]; then
+    BREW_PREFIX="/opt/homebrew"
+else
+    BREW_PREFIX="/usr/local"
+fi
+export PATH="$BREW_PREFIX/bin:$PATH"
+
+# Check for antidote with full path if needed
 if command -v antidote &> /dev/null; then
-    antidote bundle < "$DOTFILES_DIR/zsh/zsh_plugins.txt" > ~/.zsh_plugins.sh
-    log_success "Zsh plugins configured with Antidote"
+    ANTIDOTE_CMD="antidote"
+elif [[ -x "$BREW_PREFIX/bin/antidote" ]]; then
+    ANTIDOTE_CMD="$BREW_PREFIX/bin/antidote"
+    log_info "Using antidote from $BREW_PREFIX/bin/antidote"
 else
     log_error "Antidote not found. It should have been installed via Brewfile."
+    log_error "Try running: brew install antidote"
     exit 1
 fi
+
+$ANTIDOTE_CMD bundle < "$DOTFILES_DIR/zsh/zsh_plugins.txt" > ~/.zsh_plugins.sh
+log_success "Zsh plugins configured with Antidote"
 
 ###############################################################################
 # 7. Configure Git (if not already configured)
@@ -261,6 +286,15 @@ if [[ -d /opt/homebrew/opt/fzf ]]; then
     /opt/homebrew/opt/fzf/install --all --no-bash --no-fish
 elif [[ -d /usr/local/opt/fzf ]]; then
     /usr/local/opt/fzf/install --all --no-bash --no-fish
+fi
+
+# Install Claude Code globally via npm
+if command -v npm &> /dev/null; then
+    log_info "Installing Claude Code via npm..."
+    npm install -g @anthropic-ai/claude-code
+    log_success "Claude Code installed globally"
+else
+    log_warning "npm not found, skipping Claude Code installation"
 fi
 
 log_success "Additional tools configured"
