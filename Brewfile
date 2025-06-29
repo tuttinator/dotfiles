@@ -1,18 +1,13 @@
 cask_args appdir: '/Applications'
 
-tap 'homebrew/bundle'
-
 tap "aws/tap"
 tap "derailed/k9s"
 tap "dopplerhq/cli"
-tap "homebrew/cask-fonts"
-tap "homebrew/cask-versions"
-tap "homebrew/services"
 tap "oven-sh/bun"
 tap "pulumi/tap"
 tap "stripe/stripe-cli"
 
-brew "antibody"
+brew "antidote"
 brew 'starship'
 brew 'postgresql@17', link: true
 brew "aws-iam-authenticator"

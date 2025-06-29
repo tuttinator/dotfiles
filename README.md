@@ -26,7 +26,7 @@ cd ~/dotfiles
 ## 📦 What's Included
 
 - **Homebrew packages**: Development tools, CLI utilities, and applications
-- **Zsh configuration**: Custom `.zshrc` with plugins managed by Antibody
+- **Zsh configuration**: Custom `.zshrc` with plugins managed by Antidote
 - **Starship prompt**: Beautiful, fast shell prompt with Git integration
 - **Git configuration**: Global `.gitconfig` and `.gitignore_global`
 - **Neovim setup**: Editor configuration
@@ -62,7 +62,7 @@ If you prefer to set things up manually:
 4. **Setup Zsh plugins**:
 
    ```bash
-   antibody bundle < zsh/zsh_plugins.txt > ~/.zsh_plugins.sh
+   antidote bundle < zsh/zsh_plugins.txt > ~/.zsh_plugins.sh
    ```
 
 5. **Generate SSH keys**:
@@ -85,7 +85,7 @@ If you prefer to set things up manually:
 │   └── .gitignore_global    # Global gitignore patterns
 ├── zsh/
 │   ├── .zshrc              # Zsh configuration
-│   └── zsh_plugins.txt     # Antibody plugin list
+│   └── zsh_plugins.txt     # Antidote plugin list
 ├── tmux/
 │   └── .tmux.conf          # Tmux configuration
 ├── iterm2/                 # iTerm2 color schemes

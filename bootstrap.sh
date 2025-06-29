@@ -138,14 +138,14 @@ if [[ -f "$DOTFILES_DIR/rectangle/RectangleConfig.json" ]]; then
 fi
 
 ###############################################################################
-# 6. Setup Zsh plugins with Antibody
+# 6. Setup Zsh plugins with Antidote
 ###############################################################################
-log_info "Setting up Zsh plugins with Antibody..."
-if command -v antibody &> /dev/null; then
-    antibody bundle < "$DOTFILES_DIR/zsh/zsh_plugins.txt" > ~/.zsh_plugins.sh
-    log_success "Zsh plugins configured with Antibody"
+log_info "Setting up Zsh plugins with Antidote..."
+if command -v antidote &> /dev/null; then
+    antidote bundle < "$DOTFILES_DIR/zsh/zsh_plugins.txt" > ~/.zsh_plugins.sh
+    log_success "Zsh plugins configured with Antidote"
 else
-    log_error "Antibody not found. It should have been installed via Brewfile."
+    log_error "Antidote not found. It should have been installed via Brewfile."
     exit 1
 fi
 
