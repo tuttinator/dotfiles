@@ -159,19 +159,19 @@ else
 fi
 export PATH="$BREW_PREFIX/bin:$PATH"
 
-# Check for antidote with full path if needed
-if command -v antidote &> /dev/null; then
-    ANTIDOTE_CMD="antidote"
-elif [[ -x "$BREW_PREFIX/bin/antidote" ]]; then
-    ANTIDOTE_CMD="$BREW_PREFIX/bin/antidote"
-    log_info "Using antidote from $BREW_PREFIX/bin/antidote"
+# Source Antidote
+ANTIDOTE_PATH="$BREW_PREFIX/opt/antidote/share/antidote/antidote.zsh"
+if [[ -f "$ANTIDOTE_PATH" ]]; then
+    source "$ANTIDOTE_PATH"
+    log_success "Antidote sourced from $ANTIDOTE_PATH"
 else
-    log_error "Antidote not found. It should have been installed via Brewfile."
-    log_error "Try running: brew install antidote"
+    log_error "Antidote not found at $ANTIDOTE_PATH"
+    log_error "It should have been installed via Brewfile. Try running: brew install antidote"
     exit 1
 fi
 
-$ANTIDOTE_CMD bundle < "$DOTFILES_DIR/zsh/zsh_plugins.txt" > ~/.zsh_plugins.sh
+# Generate plugins using antidote
+antidote bundle < "$DOTFILES_DIR/zsh/zsh_plugins.txt" > ~/.zsh_plugins.sh
 log_success "Zsh plugins configured with Antidote"
 
 ###############################################################################
