@@ -251,7 +251,7 @@ defaults write com.apple.driver.AppleBluetoothMultitouch.trackpad Clicking -bool
 defaults write NSGlobalDomain com.apple.mouse.tapBehavior -int 1
 
 # Set dock to auto-hide
-defaults write com.apple.dock autohide -bool true
+defaults write com.apple.dock autohide -bool false
 
 # Set screenshot location to Desktop
 defaults write com.apple.screencapture location -string "$HOME/Desktop"
