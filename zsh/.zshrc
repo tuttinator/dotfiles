@@ -39,3 +39,8 @@ export PATH="/opt/homebrew/bin:$HOME/.local/bin:$PATH"
 
 # ── Misc env vars ────────────────────────────────────────────────────────────
 COREPACK_ENABLE_AUTO_PIN=0
+
+# Added by LM Studio CLI (lms)
+export PATH="$PATH:/Users/caleb/.lmstudio/bin"
+# End of LM Studio CLI section
+
