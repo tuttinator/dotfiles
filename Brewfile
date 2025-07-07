@@ -16,7 +16,7 @@ brew "biome"
 brew "btop"
 brew "cocoapods"
 brew "diff-so-fancy"
-brew "dopplerhq/cli/doppler"
+brew "dopplerhq/cli/doppler", link: true
 brew "dotnet"
 brew "eksctl"
 brew "erlang"
