@@ -46,6 +46,7 @@ brew "pipx"
 brew "r"
 brew "redis", restart_service: :changed
 brew "rust"
+brew "solargraph"
 brew "ssh-copy-id"
 brew "starship"
 brew "tmux"
