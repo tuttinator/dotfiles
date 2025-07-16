@@ -45,3 +45,4 @@ export PATH="$PATH:/Users/caleb/.lmstudio/bin"
 # End of LM Studio CLI section
 
 eval "$(/opt/homebrew/bin/mise activate zsh)"
+
