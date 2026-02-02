@@ -16,7 +16,6 @@ brew "biome"
 brew "btop"
 brew "cocoapods"
 brew "diff-so-fancy"
-brew "dopplerhq/cli/doppler", link: true
 brew "dotnet"
 brew "eksctl"
 brew "erlang"
@@ -61,7 +60,7 @@ brew "yt-dlp"
 
 # Taps
 brew "derailed/k9s/k9s"
-brew "dopplerhq/cli/doppler", link: false
+brew "dopplerhq/cli/doppler", link: true
 brew "oven-sh/bun/bun"
 brew "stripe/stripe-cli/stripe"
 

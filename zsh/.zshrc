@@ -46,3 +46,6 @@ export PATH="$PATH:/Users/caleb/.lmstudio/bin"
 
 eval "$(/opt/homebrew/bin/mise activate zsh)"
 
+
+# Added by Antigravity
+export PATH="/Users/caleb/.antigravity/antigravity/bin:$PATH"
