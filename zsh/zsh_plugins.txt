@@ -11,3 +11,4 @@ ohmyzsh/ohmyzsh path:plugins/battery
 ohmyzsh/ohmyzsh path:plugins/brew
 ohmyzsh/ohmyzsh path:plugins/kubectx
 tom-doerr/zsh_codex
+fdellwing/zsh-bat
