@@ -303,6 +303,81 @@ else
     log_warning "npm not found, skipping Claude Code installation"
 fi
 
+# Configure Claude Code sound hooks with PeonPing on macOS
+if command -v peon &> /dev/null; then
+    log_info "Configuring Claude Code alerts with Peon Warcraft sounds..."
+    mkdir -p "$HOME/.claude"
+    peon packs use --install peon
+
+    PEON_PREFIX="$(brew --prefix peon-ping 2>/dev/null || true)"
+    PEON_HOOK_CMD="$PEON_PREFIX/libexec/peon.sh"
+
+    if [[ -x "$PEON_HOOK_CMD" ]]; then
+        python3 - <<PY
+import json
+import os
+
+settings_path = os.path.expanduser("~/.claude/settings.json")
+hook_cmd = os.path.expanduser("$PEON_HOOK_CMD")
+
+if os.path.exists(settings_path):
+    with open(settings_path) as f:
+        settings = json.load(f)
+else:
+    settings = {}
+
+hooks = settings.setdefault("hooks", {})
+sync_events = {"SessionStart"}
+events = [
+    "SessionStart",
+    "SessionEnd",
+    "SubagentStart",
+    "SubagentStop",
+    "UserPromptSubmit",
+    "Stop",
+    "Notification",
+    "PermissionRequest",
+    "PostToolUseFailure",
+    "PreCompact",
+]
+
+for event in events:
+    hook = {
+        "type": "command",
+        "command": hook_cmd,
+        "timeout": 10,
+    }
+    if event not in sync_events:
+        hook["async"] = True
+
+    entry = {"matcher": "", "hooks": [hook]}
+    if event == "PostToolUseFailure":
+        entry["matcher"] = "Bash"
+
+    event_hooks = hooks.get(event, [])
+    event_hooks = [
+        existing for existing in event_hooks
+        if not any(
+            "notify.sh" in sub_hook.get("command", "") or "peon.sh" in sub_hook.get("command", "")
+            for sub_hook in existing.get("hooks", [])
+        )
+    ]
+    event_hooks.append(entry)
+    hooks[event] = event_hooks
+
+settings["hooks"] = hooks
+with open(settings_path, "w") as f:
+    json.dump(settings, f, indent=2)
+    f.write("\\n")
+PY
+        log_success "Claude Code configured to use the Peon Warcraft sound pack"
+    else
+        log_warning "Peon hook runtime not found at $PEON_HOOK_CMD, skipping Claude hook setup"
+    fi
+else
+    log_warning "peon CLI not found, skipping Claude Code sound hook setup"
+fi
+
 # Setup VS Code 'code' command in PATH
 log_info "Setting up VS Code 'code' command..."
 if [[ -d "/Applications/Visual Studio Code.app" ]]; then

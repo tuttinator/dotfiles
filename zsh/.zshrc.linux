@@ -1,0 +1,46 @@
+###############################################################################
+#  Z-shell configuration – Linux (headless servers)
+###############################################################################
+
+# ── Colours ──────────────────────────────────────────────────────────────────
+export COLORTERM=truecolor
+
+# ── Starship prompt ──────────────────────────────────────────────────────────
+eval "$(starship init zsh)"
+
+# ── History behaviour ────────────────────────────────────────────────────────
+export HISTFILE=~/.zsh_history
+setopt    appendhistory
+setopt    sharehistory
+setopt    incappendhistory
+setopt    HIST_IGNORE_ALL_DUPS
+
+# ── Completion system ────────────────────────────────────────────────────────
+autoload -Uz compinit
+compinit
+
+# ── Antidote plugin manager ─────────────────────────────────────────────────
+ANTIDOTE_HOME="${ZDOTDIR:-$HOME}/.antidote"
+if [[ -f "$ANTIDOTE_HOME/antidote.zsh" ]]; then
+    source "$ANTIDOTE_HOME/antidote.zsh"
+    antidote load
+fi
+
+# ── PATH additions ──────────────────────────────────────────────────────────
+export PATH="$HOME/.local/bin:$PATH"
+[[ ":$PATH:" != *":$HOME/bin:"* ]] && export PATH="$PATH:$HOME/bin"
+
+# ── Bun (if installed) ──────────────────────────────────────────────────────
+[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+if [[ -d "$HOME/.bun" ]]; then
+    export BUN_INSTALL="$HOME/.bun"
+    export PATH="$BUN_INSTALL/bin:$PATH"
+fi
+
+# ── mise (if installed) ─────────────────────────────────────────────────────
+if command -v mise &> /dev/null; then
+    eval "$(mise activate zsh)"
+fi
+
+# ── fzf (if installed) ──────────────────────────────────────────────────────
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh

@@ -63,6 +63,7 @@ brew "derailed/k9s/k9s"
 brew "dopplerhq/cli/doppler", link: true
 brew "oven-sh/bun/bun"
 brew "stripe/stripe-cli/stripe"
+brew "peonping/tap/peon-ping"
 
 # Casks
 cask "android-platform-tools"
@@ -91,4 +92,4 @@ cask "viscosity"
 cask "zoom"
 cask "lm-studio"
 cask "cursor"
-cask 'raycast'
+cask "qgis"

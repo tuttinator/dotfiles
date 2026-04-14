@@ -49,3 +49,8 @@ eval "$(/opt/homebrew/bin/mise activate zsh)"
 
 # Added by Antigravity
 export PATH="/Users/caleb/.antigravity/antigravity/bin:$PATH"
+
+test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
+
+
+[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
