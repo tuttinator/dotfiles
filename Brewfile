@@ -8,7 +8,6 @@ tap "pulumi/tap"
 tap "stripe/stripe-cli"
 
 brew "antidote"
-brew 'starship'
 brew 'postgresql@17', link: true
 brew "aws-iam-authenticator"
 brew "awscli"
@@ -51,6 +50,7 @@ brew "solargraph"
 brew "ssh-copy-id"
 brew "starship"
 brew "tmux"
+brew "tpm"
 brew "unzip"
 brew "uv"
 brew "websocat"
