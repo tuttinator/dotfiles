@@ -2,6 +2,10 @@
 #  Z-shell configuration – Starship for iTerm2
 ###############################################################################
 
+# ── Homebrew environment tweaks ──────────────────────────────────────────────
+export HOMEBREW_NO_ENV_HINTS=1
+export HOMEBREW_BUNDLE_FILE="$HOME/dotfiles/Brewfile"
+
 # ── Colours ──────────────────────────────────────────────────────────────────
 export COLORTERM=truecolor         # Advertise 24-bit colour to capable emulators
 
@@ -53,16 +57,24 @@ path=(
 
 export ANDROID_HOME="$HOME/Library/Android/sdk"
 export BUN_INSTALL="$HOME/.bun"
-[ -s "$HOME/.bun/_bun" ] && source "$HOME/.bun/_bun"
+[[ -s "$HOME/.bun/_bun" ]] && source "$HOME/.bun/_bun"
 
 # ── Misc env vars ────────────────────────────────────────────────────────────
 COREPACK_ENABLE_AUTO_PIN=0
+export MANPAGER="sh -c 'col -bx | bat -l man -p'"   # bat-powered man pages
+export BAT_THEME="Monokai Extended"
 
-# ── mise (version management) ────────────────────────────────────────────────
+# ── Tool integrations ────────────────────────────────────────────────────────
 eval "$(/opt/homebrew/bin/mise activate zsh)"
+eval "$(atuin init zsh)"
+eval "$(zoxide init zsh)"
+eval "$(direnv hook zsh)"
 
-# ── iTerm2 shell integration ─────────────────────────────────────────────────
-test -e "${HOME}/.iterm2_shell_integration.zsh" && source "${HOME}/.iterm2_shell_integration.zsh"
-
-# ── fzf ──────────────────────────────────────────────────────────────────────
-[ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
+# ── Deferred (non-critical, speeds up shell startup) ─────────────────────────
+if (( $+functions[zsh-defer] )); then
+    zsh-defer source "${HOME}/.iterm2_shell_integration.zsh" 2>/dev/null
+    zsh-defer source ~/.fzf.zsh 2>/dev/null
+else
+    [[ -f "${HOME}/.iterm2_shell_integration.zsh" ]] && source "${HOME}/.iterm2_shell_integration.zsh"
+    [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+fi

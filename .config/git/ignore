@@ -1,0 +1,9 @@
+# macOS
+.DS_Store
+
+# Editors / IDEs
+.vs_code
+
+# Local tool state
+.vagrant/
+**/.claude/settings.local.json

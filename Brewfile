@@ -14,15 +14,27 @@ brew "awscli"
 brew "biome"
 brew "btop"
 brew "cocoapods"
-brew "diff-so-fancy"
 brew "dotnet"
 brew "eksctl"
 brew "erlang"
 brew "elixir"
 brew "fastlane"
 brew "ffmpeg"
+brew "fzf"
 brew "fzy"
 brew "helm"
+
+# Modern CLI tools
+brew "atuin"        # magical shell history with SQLite backend + sync
+brew "bat"          # cat with syntax highlighting
+brew "direnv"       # per-directory env vars
+brew "eza"          # modern ls replacement
+brew "fd"           # fast, ergonomic find
+brew "git-delta"    # better git diff viewer
+brew "lazygit"      # TUI for git
+brew "mas"          # Mac App Store CLI
+brew "ripgrep"      # fast grep (rg)
+brew "zoxide"       # smart cd
 brew "htop"
 brew "gh"
 brew "git"
@@ -65,7 +77,7 @@ brew "oven-sh/bun/bun"
 brew "stripe/stripe-cli/stripe"
 brew "peonping/tap/peon-ping"
 tap "docker/tap"
-brew "sbx"
+cask "sbx"
 
 # Casks
 cask "android-platform-tools"

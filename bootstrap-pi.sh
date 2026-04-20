@@ -8,17 +8,8 @@
 
 set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
-log_error()   { echo -e "${RED}[ERROR]${NC} $1"; }
+DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source "$DOTFILES_DIR/lib/common.sh"
 
 # Detect Pi model
 detect_pi_model() {
@@ -33,9 +24,7 @@ detect_pi_model() {
     fi
 }
 
-DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
 PI_MODEL=$(detect_pi_model)
-
 log_info "Dotfiles directory: $DOTFILES_DIR"
 log_info "Detected Pi model: $PI_MODEL"
 
@@ -99,14 +88,12 @@ if [[ "$PI_MODEL" == "pi5" ]]; then
     mise use --global python@latest
     log_success "Node.js LTS and Python installed via mise"
 
-    # Install Claude Code on Pi 5 (enough resources to run it)
     if command -v npm &> /dev/null; then
         log_info "Installing Claude Code via npm..."
         npm install -g @anthropic-ai/claude-code
         log_success "Claude Code installed globally"
     fi
 else
-    # Pi Zero 2 W – Node LTS only, skip Claude Code (limited resources)
     mise use --global node@lts
     log_success "Node.js LTS installed via mise"
     log_warning "Skipping Claude Code on Pi Zero 2 W (limited resources)"
@@ -134,47 +121,15 @@ chmod 700 ~/.ssh
 log_success "Directories created"
 
 ###############################################################################
-# 7. Symlink dotfiles
+# 7. Symlink dotfiles (XDG layout)
 ###############################################################################
 log_info "Creating symlinks for dotfiles..."
 
-backup_and_link() {
-    local source_path="$1"
-    local target_path="$2"
-
-    if [[ -e "$target_path" && ! -L "$target_path" ]]; then
-        log_warning "Backing up existing $target_path to $target_path.backup"
-        mv "$target_path" "$target_path.backup"
-    fi
-
-    if [[ -L "$target_path" ]]; then
-        rm "$target_path"
-    fi
-
-    ln -sf "$source_path" "$target_path"
-    log_success "Linked $source_path -> $target_path"
-}
-
-# Symlink Linux zshrc
 backup_and_link "$DOTFILES_DIR/zsh/.zshrc.linux" "$HOME/.zshrc"
-
-# Symlink Linux zsh plugins
 backup_and_link "$DOTFILES_DIR/zsh/zsh_plugins_linux.txt" "$HOME/.zsh_plugins.txt"
 
-# Symlink starship config
-backup_and_link "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
-
-# Symlink git config
-backup_and_link "$DOTFILES_DIR/git/.gitconfig" "$HOME/.gitconfig"
-backup_and_link "$DOTFILES_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
-
-# Symlink tmux config
-backup_and_link "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
-
-# Symlink nvim config
-if [[ -d "$DOTFILES_DIR/.config/nvim" ]]; then
-    backup_and_link "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
-fi
+link_shared_dotfiles
+cleanup_legacy_symlinks
 
 ###############################################################################
 # 8. Setup Zsh plugins
@@ -190,56 +145,17 @@ log_success "Zsh plugins configured"
 ###############################################################################
 # 9. Install tmux plugin manager
 ###############################################################################
-log_info "Installing tmux plugin manager..."
-if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
-    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-    log_success "TPM installed (run prefix + I inside tmux to install plugins)"
-else
-    log_success "TPM already installed"
-fi
+install_tpm_git
 
 ###############################################################################
-# 10. Configure Git (if not already configured)
+# 10. Configure Git identity
 ###############################################################################
-log_info "Configuring Git..."
-if [[ -z "$(git config --global user.name)" ]]; then
-    read -p "Enter your full name for Git: " git_name
-    git config --global user.name "$git_name"
-fi
-
-if [[ -z "$(git config --global user.email)" ]]; then
-    read -p "Enter your email for Git: " git_email
-    git config --global user.email "$git_email"
-fi
-
-log_success "Git configured"
+configure_git_identity
 
 ###############################################################################
 # 11. Generate SSH Keys
 ###############################################################################
-log_info "Setting up SSH keys..."
-if [[ ! -f ~/.ssh/id_ed25519 ]]; then
-    read -p "Enter your email for SSH key: " ssh_email
-    ssh-keygen -t ed25519 -C "$ssh_email" -f ~/.ssh/id_ed25519 -N ""
-
-    eval "$(ssh-agent -s)"
-    ssh-add ~/.ssh/id_ed25519
-
-    cat > ~/.ssh/config << EOF
-Host *
-    AddKeysToAgent yes
-    IdentityFile ~/.ssh/id_ed25519
-EOF
-
-    chmod 600 ~/.ssh/config
-
-    log_success "SSH key generated"
-    log_info "Your public key is:"
-    cat ~/.ssh/id_ed25519.pub
-    log_warning "Add this key to your GitHub account at https://github.com/settings/keys"
-else
-    log_success "SSH key already exists"
-fi
+generate_ssh_key false
 
 ###############################################################################
 # 12. Set default shell to zsh

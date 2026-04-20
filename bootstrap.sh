@@ -2,37 +2,14 @@
 
 ###############################################################################
 # Bootstrap Script for macOS Dotfiles Setup
-# This script sets up a new Mac with dotfiles, homebrew, and essential tools
+# Sets up a new Mac with dotfiles, homebrew, and essential tools
 ###############################################################################
 
-set -e  # Exit on any error
+set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m' # No Color
-
-# Helper functions
-log_info() {
-    echo -e "${BLUE}[INFO]${NC} $1"
-}
-
-log_success() {
-    echo -e "${GREEN}[SUCCESS]${NC} $1"
-}
-
-log_warning() {
-    echo -e "${YELLOW}[WARNING]${NC} $1"
-}
-
-log_error() {
-    echo -e "${RED}[ERROR]${NC} $1"
-}
-
-# Get the directory where this script is located
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source "$DOTFILES_DIR/lib/common.sh"
+
 log_info "Dotfiles directory: $DOTFILES_DIR"
 
 ###############################################################################
@@ -100,68 +77,33 @@ chmod 700 ~/.ssh
 log_success "Directories created"
 
 ###############################################################################
-# 5. Symlink dotfiles
+# 5. Symlink dotfiles (XDG layout)
 ###############################################################################
 log_info "Creating symlinks for dotfiles..."
 
-# Backup existing files if they exist
-backup_and_link() {
-    local source_path="$1"
-    local target_path="$2"
-
-    if [[ -e "$target_path" && ! -L "$target_path" ]]; then
-        log_warning "Backing up existing $target_path to $target_path.backup"
-        mv "$target_path" "$target_path.backup"
-    fi
-
-    if [[ -L "$target_path" ]]; then
-        rm "$target_path"
-    fi
-
-    ln -sf "$source_path" "$target_path"
-    log_success "Linked $source_path -> $target_path"
-}
-
-# Symlink .zshrc
+# macOS-specific zsh files
 backup_and_link "$DOTFILES_DIR/zsh/.zshrc" "$HOME/.zshrc"
-
 backup_and_link "$DOTFILES_DIR/zsh/zsh_plugins.txt" "$HOME/.zsh_plugins.txt"
 
-# Symlink starship config
-backup_and_link "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
+# Shared (XDG) dotfiles
+link_shared_dotfiles
 
-# Symlink git config
-backup_and_link "$DOTFILES_DIR/git/.gitconfig" "$HOME/.gitconfig"
-backup_and_link "$DOTFILES_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
-
-# Symlink tmux config
-backup_and_link "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
-
-# Symlink nvim config
-if [[ -d "$DOTFILES_DIR/.config/nvim" ]]; then
-    backup_and_link "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
-fi
-
-# Symlink Rectangle config
+# Rectangle config (macOS only)
 if [[ -f "$DOTFILES_DIR/rectangle/RectangleConfig.json" ]]; then
     mkdir -p "$HOME/Library/Preferences"
     backup_and_link "$DOTFILES_DIR/rectangle/RectangleConfig.json" "$HOME/Library/Preferences/com.knollsoft.Rectangle.plist"
 fi
+
+# Migration: remove legacy home-dir symlinks now that XDG paths exist
+cleanup_legacy_symlinks
 
 ###############################################################################
 # 6. Setup Zsh plugins with Antidote
 ###############################################################################
 log_info "Setting up Zsh plugins with Antidote..."
 
-# Ensure Homebrew binaries are in PATH for current session
-if [[ $(uname -m) == 'arm64' ]]; then
-    BREW_PREFIX="/opt/homebrew"
-else
-    BREW_PREFIX="/usr/local"
-fi
 export PATH="$BREW_PREFIX/bin:$PATH"
 
-# Source Antidote
 ANTIDOTE_PATH="$BREW_PREFIX/opt/antidote/share/antidote/antidote.zsh"
 if [[ -f "$ANTIDOTE_PATH" ]]; then
     log_success "Antidote found at $ANTIDOTE_PATH"
@@ -171,7 +113,6 @@ else
     exit 1
 fi
 
-# Generate plugins using antidote in zsh context
 log_info "Installing and bundling Zsh plugins..."
 zsh -c "
     source '$ANTIDOTE_PATH'
@@ -181,56 +122,14 @@ zsh -c "
 log_success "Zsh plugins configured with Antidote"
 
 ###############################################################################
-# 7. Configure Git (if not already configured)
+# 7. Configure Git identity (falls through if config already has user/email)
 ###############################################################################
-log_info "Configuring Git..."
-if [[ -z "$(git config --global user.name)" ]]; then
-    read -p "Enter your full name for Git: " git_name
-    git config --global user.name "$git_name"
-fi
-
-if [[ -z "$(git config --global user.email)" ]]; then
-    read -p "Enter your email for Git: " git_email
-    git config --global user.email "$git_email"
-fi
-
-log_success "Git configured"
+configure_git_identity
 
 ###############################################################################
 # 8. Generate SSH Keys
 ###############################################################################
-log_info "Setting up SSH keys..."
-if [[ ! -f ~/.ssh/id_ed25519 ]]; then
-    read -p "Enter your email for SSH key: " ssh_email
-    ssh-keygen -t ed25519 -C "$ssh_email" -f ~/.ssh/id_ed25519 -N ""
-
-    # Start ssh-agent and add key
-    eval "$(ssh-agent -s)"
-    ssh-add ~/.ssh/id_ed25519
-
-    # Create SSH config
-    cat > ~/.ssh/config << EOF
-Host *
-    AddKeysToAgent yes
-    UseKeychain yes
-    IdentityFile ~/.ssh/id_ed25519
-EOF
-
-    chmod 600 ~/.ssh/config
-
-    log_success "SSH key generated"
-    log_info "Your public key is:"
-    cat ~/.ssh/id_ed25519.pub
-    log_warning "Please add this key to your GitHub account at https://github.com/settings/keys"
-
-    # Copy to clipboard if pbcopy is available
-    if command -v pbcopy &> /dev/null; then
-        cat ~/.ssh/id_ed25519.pub | pbcopy
-        log_success "Public key copied to clipboard"
-    fi
-else
-    log_success "SSH key already exists"
-fi
+generate_ssh_key true   # true = enable UseKeychain on macOS
 
 ###############################################################################
 # 9. Setup macOS defaults
@@ -267,10 +166,7 @@ log_success "macOS defaults configured"
 ###############################################################################
 log_info "Starting essential services..."
 
-# Start PostgreSQL
 brew services start postgresql@17
-
-# Start Redis
 brew services start redis
 
 log_success "Essential services started"
@@ -381,7 +277,6 @@ fi
 # Setup VS Code 'code' command in PATH
 log_info "Setting up VS Code 'code' command..."
 if [[ -d "/Applications/Visual Studio Code.app" ]]; then
-    # Create symlink for the code command if it doesn't exist
     if ! command -v code &> /dev/null; then
         sudo ln -sf "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" /usr/local/bin/code
         log_success "VS Code 'code' command installed"
@@ -395,19 +290,12 @@ fi
 log_success "Additional tools configured"
 
 ###############################################################################
-# 12. Final steps and cleanup
+# 12. Final cleanup
 ###############################################################################
 log_info "Performing final cleanup..."
 
-# Restart Dock and Finder to apply changes
 killall Dock
 killall Finder
-
-# Source the new zsh configuration
-if [[ "$SHELL" == */zsh ]]; then
-    log_info "Reloading zsh configuration..."
-    # Note: This won't work in the script context, user needs to restart terminal
-fi
 
 log_success "Bootstrap complete!"
 
@@ -419,8 +307,8 @@ echo "🎉 Bootstrap completed successfully!"
 echo ""
 echo "Next steps:"
 echo "1. Restart your terminal to load the new configuration"
-echo "2. Add your SSH key to GitHub: https://github.com/settings/keys"
-echo "3. Install any additional apps from the Mac App Store"
+echo "2. Inside tmux, press prefix + I to install tmux plugins"
+echo "3. Add your SSH key to GitHub: https://github.com/settings/keys"
 echo "4. Configure any application-specific settings, like aws cli, gcloud, etc."
 echo ""
 echo "Your dotfiles are now set up and ready to use!"

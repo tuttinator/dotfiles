@@ -7,20 +7,9 @@
 
 set -e
 
-# Colors for output
-RED='\033[0;31m'
-GREEN='\033[0;32m'
-YELLOW='\033[1;33m'
-BLUE='\033[0;34m'
-NC='\033[0m'
-
-log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
-log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
-log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
-log_error()   { echo -e "${RED}[ERROR]${NC} $1"; }
-
-# Get the directory where this script is located
 DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+source "$DOTFILES_DIR/lib/common.sh"
+
 log_info "Dotfiles directory: $DOTFILES_DIR"
 
 ###############################################################################
@@ -55,12 +44,10 @@ log_success "Essential packages installed"
 ###############################################################################
 log_info "Installing Docker..."
 if ! command -v docker &> /dev/null; then
-    # Add Docker's official GPG key
     sudo install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
     sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
-    # Add the repository to apt sources
     echo \
       "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
       $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
@@ -69,7 +56,6 @@ if ! command -v docker &> /dev/null; then
     sudo apt-get update
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
 
-    # Add current user to docker group
     sudo usermod -aG docker "$USER"
     log_success "Docker installed (log out and back in for group changes)"
 else
@@ -137,47 +123,15 @@ chmod 700 ~/.ssh
 log_success "Directories created"
 
 ###############################################################################
-# 8. Symlink dotfiles
+# 8. Symlink dotfiles (XDG layout)
 ###############################################################################
 log_info "Creating symlinks for dotfiles..."
 
-backup_and_link() {
-    local source_path="$1"
-    local target_path="$2"
-
-    if [[ -e "$target_path" && ! -L "$target_path" ]]; then
-        log_warning "Backing up existing $target_path to $target_path.backup"
-        mv "$target_path" "$target_path.backup"
-    fi
-
-    if [[ -L "$target_path" ]]; then
-        rm "$target_path"
-    fi
-
-    ln -sf "$source_path" "$target_path"
-    log_success "Linked $source_path -> $target_path"
-}
-
-# Symlink Linux zshrc
 backup_and_link "$DOTFILES_DIR/zsh/.zshrc.linux" "$HOME/.zshrc"
-
-# Symlink Linux zsh plugins
 backup_and_link "$DOTFILES_DIR/zsh/zsh_plugins_linux.txt" "$HOME/.zsh_plugins.txt"
 
-# Symlink starship config
-backup_and_link "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
-
-# Symlink git config
-backup_and_link "$DOTFILES_DIR/git/.gitconfig" "$HOME/.gitconfig"
-backup_and_link "$DOTFILES_DIR/git/.gitignore_global" "$HOME/.gitignore_global"
-
-# Symlink tmux config
-backup_and_link "$DOTFILES_DIR/tmux/.tmux.conf" "$HOME/.tmux.conf"
-
-# Symlink nvim config
-if [[ -d "$DOTFILES_DIR/.config/nvim" ]]; then
-    backup_and_link "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
-fi
+link_shared_dotfiles
+cleanup_legacy_symlinks
 
 ###############################################################################
 # 9. Setup Zsh plugins
@@ -193,56 +147,17 @@ log_success "Zsh plugins configured"
 ###############################################################################
 # 10. Install tmux plugin manager
 ###############################################################################
-log_info "Installing tmux plugin manager..."
-if [[ ! -d "$HOME/.tmux/plugins/tpm" ]]; then
-    git clone https://github.com/tmux-plugins/tpm "$HOME/.tmux/plugins/tpm"
-    log_success "TPM installed (run prefix + I inside tmux to install plugins)"
-else
-    log_success "TPM already installed"
-fi
+install_tpm_git
 
 ###############################################################################
-# 11. Configure Git (if not already configured)
+# 11. Configure Git identity
 ###############################################################################
-log_info "Configuring Git..."
-if [[ -z "$(git config --global user.name)" ]]; then
-    read -p "Enter your full name for Git: " git_name
-    git config --global user.name "$git_name"
-fi
-
-if [[ -z "$(git config --global user.email)" ]]; then
-    read -p "Enter your email for Git: " git_email
-    git config --global user.email "$git_email"
-fi
-
-log_success "Git configured"
+configure_git_identity
 
 ###############################################################################
 # 12. Generate SSH Keys
 ###############################################################################
-log_info "Setting up SSH keys..."
-if [[ ! -f ~/.ssh/id_ed25519 ]]; then
-    read -p "Enter your email for SSH key: " ssh_email
-    ssh-keygen -t ed25519 -C "$ssh_email" -f ~/.ssh/id_ed25519 -N ""
-
-    eval "$(ssh-agent -s)"
-    ssh-add ~/.ssh/id_ed25519
-
-    cat > ~/.ssh/config << EOF
-Host *
-    AddKeysToAgent yes
-    IdentityFile ~/.ssh/id_ed25519
-EOF
-
-    chmod 600 ~/.ssh/config
-
-    log_success "SSH key generated"
-    log_info "Your public key is:"
-    cat ~/.ssh/id_ed25519.pub
-    log_warning "Add this key to your GitHub account at https://github.com/settings/keys"
-else
-    log_success "SSH key already exists"
-fi
+generate_ssh_key false
 
 ###############################################################################
 # 13. Set default shell to zsh
