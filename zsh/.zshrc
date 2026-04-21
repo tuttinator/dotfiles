@@ -66,9 +66,20 @@ export BAT_THEME="Monokai Extended"
 
 # ── Tool integrations ────────────────────────────────────────────────────────
 eval "$(/opt/homebrew/bin/mise activate zsh)"
-eval "$(atuin init zsh)"
+eval "$(atuin init zsh --disable-up-arrow)"
+# Up arrow: native zsh history (instant; gives last command).
+# Down arrow: open Atuin fuzzy history search.
+bindkey '^[[B' atuin-search
+bindkey '^[OB' atuin-search
 eval "$(zoxide init zsh)"
 eval "$(direnv hook zsh)"
+
+# ── Aliases ──────────────────────────────────────────────────────────────────
+# eza (modern ls replacement)
+alias ls='eza --icons --group-directories-first'
+alias ll='eza -l --icons --git --group-directories-first'
+alias la='eza -la --icons --git --group-directories-first'
+alias lt='eza --tree --level=2 --icons --git-ignore'
 
 # ── Deferred (non-critical, speeds up shell startup) ─────────────────────────
 if (( $+functions[zsh-defer] )); then
