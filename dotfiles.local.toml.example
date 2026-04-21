@@ -1,0 +1,9 @@
+# Per-machine overrides for bootstrap.sh.
+# Copy to dotfiles.local.toml (gitignored) and edit.
+# Any key left unset falls back to the defaults hard-coded in bootstrap.sh.
+
+[peon]
+# Active sound pack for Claude Code alerts. Browse packs with:
+#   peon packs list --registry
+# Examples: "nezuai-varied", "futurama_bender", "sc_battlecruiser", "peon"
+pack = "nezuai-varied"

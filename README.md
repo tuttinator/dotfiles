@@ -99,7 +99,7 @@ If you prefer to set things up manually:
 - **Development tools**: Node.js, Python, Go, Rust, and other language toolchains
 - **Window management**: Rectangle for window snapping and organization
 - **Version management**: mise for managing multiple language versions
-- **Claude Code alerts on macOS**: `bootstrap.sh` wires Claude Code hooks to `peon-ping` and selects the Warcraft Orc Peon pack
+- **Claude Code alerts on macOS**: `bootstrap.sh` wires Claude Code hooks to `peon-ping` and selects a pack
 
 ## 🔧 Customization
 

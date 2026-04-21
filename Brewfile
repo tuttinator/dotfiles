@@ -71,6 +71,10 @@ brew "wget"
 brew "yarn"
 brew "yt-dlp"
 
+# Terminal recording / content creation
+brew "asciinema"    # record terminal sessions as .cast (embeddable, text-based)
+brew "vhs"          # scriptable terminal recordings -> GIF/MP4/WEBM
+
 # Taps
 brew "derailed/k9s/k9s"
 brew "dopplerhq/cli/doppler", link: true

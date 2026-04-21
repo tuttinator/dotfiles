@@ -195,15 +195,37 @@ if command -v npm &> /dev/null; then
     log_info "Installing Claude Code via npm..."
     npm install -g @anthropic-ai/claude-code
     log_success "Claude Code installed globally"
+
+    # Pre-fetch ccstatusline so the first prompt render is instant
+    # (settings.json invokes it as `npx ccstatusline@latest` at status-line render time)
+    log_info "Pre-fetching ccstatusline for Claude Code status line..."
+    npm install -g ccstatusline
+    log_success "ccstatusline installed globally"
 else
-    log_warning "npm not found, skipping Claude Code installation"
+    log_warning "npm not found, skipping Claude Code + ccstatusline installation"
 fi
 
 # Configure Claude Code sound hooks with PeonPing on macOS
 if command -v peon &> /dev/null; then
-    log_info "Configuring Claude Code alerts with Peon Warcraft sounds..."
+    # Resolve the sound pack: optional override from dotfiles.local.toml,
+    # falling back to the default below. See dotfiles.local.toml.example.
+    PEON_PACK_DEFAULT="nezuai-varied"
+    PEON_PACK="$(
+        python3 - "$DOTFILES_DIR/dotfiles.local.toml" "$PEON_PACK_DEFAULT" <<'PY'
+import sys, tomllib, pathlib
+cfg_path, default = pathlib.Path(sys.argv[1]), sys.argv[2]
+pack = default
+if cfg_path.is_file():
+    with cfg_path.open("rb") as f:
+        cfg = tomllib.load(f)
+    pack = cfg.get("peon", {}).get("pack") or default
+print(pack)
+PY
+    )"
+
+    log_info "Configuring Claude Code alerts with peon-ping pack: $PEON_PACK"
     mkdir -p "$HOME/.claude"
-    peon packs use --install peon
+    peon packs use --install "$PEON_PACK"
 
     PEON_PREFIX="$(brew --prefix peon-ping 2>/dev/null || true)"
     PEON_HOOK_CMD="$PEON_PREFIX/libexec/peon.sh"
@@ -266,7 +288,7 @@ with open(settings_path, "w") as f:
     json.dump(settings, f, indent=2)
     f.write("\\n")
 PY
-        log_success "Claude Code configured to use the Peon Warcraft sound pack"
+        log_success "Claude Code configured to use peon-ping pack: $PEON_PACK"
     else
         log_warning "Peon hook runtime not found at $PEON_HOOK_CMD, skipping Claude hook setup"
     fi
