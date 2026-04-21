@@ -35,6 +35,7 @@ brew "lazygit"      # TUI for git
 brew "mas"          # Mac App Store CLI
 brew "ripgrep"      # fast grep (rg)
 brew "zoxide"       # smart cd
+brew "tree"
 brew "htop"
 brew "gh"
 brew "git"
