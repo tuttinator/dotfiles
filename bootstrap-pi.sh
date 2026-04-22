@@ -46,6 +46,7 @@ sudo apt-get install -y \
     gnupg \
     htop \
     jq \
+    mosh \
     neovim \
     tmux \
     unzip \

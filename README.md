@@ -71,6 +71,81 @@ If you prefer to set things up manually:
    ssh-keygen -t ed25519 -C "your-email@example.com"
    ```
 
+## 🍓 Headless Raspberry Pi Provisioning
+
+`bootstrap-pi-sd.sh` provisions a Raspberry Pi SD card from your Mac so the Pi
+comes up on your Wi-Fi, joins your Tailscale tailnet, and runs
+`bootstrap-pi.sh` — all without a screen or keyboard.
+
+### One-time setup
+
+1. Copy the example config and fill in the `[pi]` section:
+
+   ```bash
+   cp dotfiles.local.toml.example dotfiles.local.toml
+   $EDITOR dotfiles.local.toml
+   ```
+
+   You'll need Wi-Fi credentials, a user password, and a Tailscale auth key
+   from https://login.tailscale.com/admin/settings/authkeys (reusable +
+   pre-approved is easiest). `dotfiles.local.toml` is gitignored — don't check
+   it in.
+
+2. Install Raspberry Pi Imager if you haven't already:
+
+   ```bash
+   brew install --cask raspberry-pi-imager
+   ```
+
+### Provisioning a card (default, safe path)
+
+1. Flash Raspberry Pi OS Lite (64-bit) to the SD card using the Raspberry Pi
+   Imager GUI. Leave all "advanced options" blank — our script replaces them.
+2. After flashing, the `bootfs` partition auto-mounts at `/Volumes/bootfs`.
+   With the card still inserted, run:
+
+   ```bash
+   ./bootstrap-pi-sd.sh kitchen
+   ```
+
+   The suffix (`kitchen`) is appended to `[pi].hostname_prefix` to form the
+   final hostname (e.g. `pi-kitchen`).
+
+3. The script drops `custom.toml`, `firstrun.sh`, and patches `cmdline.txt`
+   onto the boot partition, then ejects. Insert the card into the Pi and power
+   it on. Within ~5 minutes it should appear on your tailnet:
+
+   ```bash
+   tailscale status | grep pi-kitchen
+   ssh caleb@pi-kitchen     # via Tailscale SSH if enabled, or your SSH key
+   ```
+
+### Optional: flash-and-prepare in one shot
+
+If you'd rather have the script flash the card too, pass `--flash` with the
+target device. **Destructive — double-check the disk!**
+
+```bash
+diskutil list external physical    # find your SD card
+./bootstrap-pi-sd.sh kitchen --flash /dev/disk6
+```
+
+The script refuses to write to low-numbered disks and requires you to retype
+the device path to confirm.
+
+### Troubleshooting
+
+If the Pi doesn't appear on the tailnet after ~5 min, boot it with a monitor
+and check:
+
+```bash
+sudo cat /boot/firmware/firstrun.log
+```
+
+Common causes: wrong Wi-Fi country code, expired/invalid Tailscale auth key,
+Wi-Fi password with special characters that got mangled (the script writes
+TOML, so `"` and `\` in the PSK need escaping in `dotfiles.local.toml`).
+
 ## 📁 Structure
 
 ```text

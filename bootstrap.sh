@@ -60,7 +60,7 @@ fi
 log_info "Installing packages from Brewfile..."
 if [[ -f "$DOTFILES_DIR/Brewfile" ]]; then
     cd "$DOTFILES_DIR"
-    brew bundle install
+    brew bundle install --verbose
     log_success "Packages installed from Brewfile"
 else
     log_error "Brewfile not found in $DOTFILES_DIR"

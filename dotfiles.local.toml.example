@@ -7,3 +7,22 @@
 #   peon packs list --registry
 # Examples: "nezuai-varied", "futurama_bender", "sc_battlecruiser", "peon"
 pack = "nezuai-varied"
+
+# Raspberry Pi SD-card provisioning. Consumed by bootstrap-pi-sd.sh.
+# Leave the [pi] block out entirely if you don't provision Pis from this machine.
+[pi]
+hostname_prefix = "pi"        # final hostname = <prefix>-<suffix arg>, e.g. pi-kitchen
+username        = "caleb"
+password        = "change-me" # plaintext; hashed with openssl before it hits the SD card
+wifi_ssid       = "YourNetwork"
+wifi_psk        = "your-wifi-password"
+wifi_country    = "NZ"        # ISO 3166-1 alpha-2; required by the Pi Wi-Fi stack
+timezone        = "Pacific/Auckland"
+locale          = "en_NZ.UTF-8"
+
+[pi.tailscale]
+# Generate at https://login.tailscale.com/admin/settings/authkeys
+# Reusable + pre-approved is easiest; ephemeral + tagged is more secure.
+authkey = "tskey-auth-xxxxxxxxxxxx"
+tags    = ["tag:pi"]          # optional; the authkey must be tagged to match
+ssh     = true                # enable Tailscale SSH on the Pi
