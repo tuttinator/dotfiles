@@ -82,8 +82,7 @@ brew "dopplerhq/cli/doppler", link: true
 brew "oven-sh/bun/bun"
 brew "stripe/stripe-cli/stripe"
 brew "peonping/tap/peon-ping"
-tap "docker/tap"
-cask "sbx"
+brew "docker/tap/sbx"
 
 # Casks
 cask "android-platform-tools"
