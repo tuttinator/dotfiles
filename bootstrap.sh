@@ -13,15 +13,31 @@ source "$DOTFILES_DIR/lib/common.sh"
 log_info "Dotfiles directory: $DOTFILES_DIR"
 
 ###############################################################################
-# 1. Install Xcode Command Line Tools
+# 1. Install / update Xcode Command Line Tools
+#
+# Casks like qgis link against CLT headers; a pending CLT update makes
+# `brew bundle` fail halfway through. We install or update before proceeding.
 ###############################################################################
-log_info "Installing Xcode Command Line Tools..."
+log_info "Checking Xcode Command Line Tools..."
 if ! xcode-select -p &> /dev/null; then
     xcode-select --install
-    log_warning "Please complete the Xcode Command Line Tools installation and run this script again."
+    log_warning "Command Line Tools installation started in a GUI dialog."
+    log_warning "Complete it, then re-run this script."
     exit 1
+fi
+log_success "Command Line Tools are installed"
+
+log_info "Checking for pending Command Line Tools updates (this can take ~30s)..."
+CLT_UPDATE=$(softwareupdate --list 2>/dev/null \
+    | awk '/Label:.*Command Line Tools/ {sub(/^[[:space:]]*\*[[:space:]]*Label:[[:space:]]*/, ""); print; exit}')
+
+if [[ -n "$CLT_UPDATE" ]]; then
+    log_warning "Pending CLT update: $CLT_UPDATE"
+    log_info "Installing (requires sudo)..."
+    sudo softwareupdate --install "$CLT_UPDATE" --verbose
+    log_success "Command Line Tools updated"
 else
-    log_success "Xcode Command Line Tools already installed"
+    log_success "Command Line Tools are up to date"
 fi
 
 ###############################################################################

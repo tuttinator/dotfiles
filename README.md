@@ -71,11 +71,44 @@ If you prefer to set things up manually:
    ssh-keygen -t ed25519 -C "your-email@example.com"
    ```
 
+## 🪟 Windows Setup
+
+Windows hosts the GUI apps; WSL2 + Ubuntu hosts the dev tooling. The Linux
+side reuses `bootstrap-linux.sh`, so the zsh/tmux/nvim/mise setup lives in one
+place.
+
+1. Clone the repo to `C:\Users\<you>\dotfiles`.
+2. Open an **elevated** PowerShell (Run as Administrator), then:
+
+   ```powershell
+   cd $HOME\dotfiles
+   .\bootstrap-windows.ps1
+   ```
+
+   This installs the apps listed in `winget.json` and sets up WSL2 + Ubuntu.
+   If WSL asks for a reboot, reboot and re-run with `-SkipApps` to finish.
+
+3. Launch Ubuntu from the Start Menu (first launch asks for a username +
+   password), then inside Ubuntu:
+
+   ```bash
+   sudo apt-get update && sudo apt-get install -y git
+   git clone https://github.com/calebtutty/dotfiles.git ~/dotfiles
+   cd ~/dotfiles && ./bootstrap-linux.sh
+   ```
+
+4. Launch Tailscale from the Start Menu and sign in. The WSL side needs its
+   own `sudo tailscale up --ssh` — WSL doesn't share the Windows host's
+   tailnet identity.
+
+Edit `winget.json` to add/remove apps. Find package IDs with
+`winget search <name>`.
+
 ## 🍓 Headless Raspberry Pi Provisioning
 
 `bootstrap-pi-sd.sh` provisions a Raspberry Pi SD card from your Mac so the Pi
 comes up on your Wi-Fi, joins your Tailscale tailnet, and runs
-`bootstrap-pi.sh` — all without a screen or keyboard.
+`bootstrap-linux.sh` — all without a screen or keyboard.
 
 ### One-time setup
 

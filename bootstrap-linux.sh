@@ -1,9 +1,9 @@
 #!/bin/bash
 
 ###############################################################################
-# Bootstrap Script for Raspberry Pi (Zero 2 W / Pi 5)
-# Raspbian (Debian) – headless, accessed via SSH
-# No desktop software, no Docker
+# Bootstrap Script for Debian-based Linux
+# Targets: Raspberry Pi OS (Zero 2 W / Pi 5) and WSL2 Ubuntu
+# Headless — no desktop software, no Docker
 ###############################################################################
 
 set -e

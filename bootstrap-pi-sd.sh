@@ -9,7 +9,7 @@
 #                     service — no custom scripting required for the basics.
 #   - firstrun.sh   : runs once on first boot after firstboot completes; installs
 #                     Tailscale, joins the tailnet with the configured authkey,
-#                     clones dotfiles, and runs bootstrap-pi.sh.
+#                     clones dotfiles, and runs bootstrap-linux.sh.
 #   - cmdline.txt   : patched to invoke firstrun.sh on first boot.
 #
 # Default mode (safe): waits for an already-flashed SD card to mount as
@@ -278,10 +278,10 @@ if [ -n "$TS_AUTHKEY" ]; then
     tailscale up $TS_UP_FLAGS
 fi
 
-# Clone dotfiles into the Pi user's home and run bootstrap-pi.sh as that user
+# Clone dotfiles into the Pi user's home and run bootstrap-linux.sh as that user
 sudo -u "$PI_USER" git clone --depth=1 "$DOTFILES_REPO_URL" "/home/$PI_USER/dotfiles" || true
-if [ -x "/home/$PI_USER/dotfiles/bootstrap-pi.sh" ]; then
-    sudo -u "$PI_USER" bash -lc "cd /home/$PI_USER/dotfiles && ./bootstrap-pi.sh" || true
+if [ -x "/home/$PI_USER/dotfiles/bootstrap-linux.sh" ]; then
+    sudo -u "$PI_USER" bash -lc "cd /home/$PI_USER/dotfiles && ./bootstrap-linux.sh" || true
 fi
 
 # Self-disable: remove the cmdline.txt hook so we don't run again
@@ -318,7 +318,7 @@ echo ""
 echo "Expected timeline:"
 echo "  ~1 min  : firstboot creates user, connects Wi-Fi, enables SSH, reboots"
 echo "  ~3 min  : firstrun.sh installs Tailscale and joins the tailnet"
-echo "  ~5-15 min: bootstrap-pi.sh finishes (Node, zsh plugins, etc.)"
+echo "  ~5-15 min: bootstrap-linux.sh finishes (Node, zsh plugins, etc.)"
 echo ""
 echo "Once joined, find the Pi on your tailnet:"
 echo "  tailscale status | grep $HOSTNAME"
