@@ -33,6 +33,7 @@ brew "fd"           # fast, ergonomic find
 brew "git-delta"    # better git diff viewer
 brew "lazygit"      # TUI for git
 brew "mas"          # Mac App Store CLI
+brew "mole"         # `mo clean` — cache/junk cleaner (whitelist lives in dotfiles/mole/)
 brew "ripgrep"      # fast grep (rg)
 brew "zoxide"       # smart cd
 brew "tree"
@@ -103,6 +104,7 @@ cask "rar"
 cask "rectangle"
 cask "rstudio"
 cask "slack"
+cask "tailscale-app"
 cask "vlc"
 cask "visual-studio-code"
 cask "discord"

@@ -55,6 +55,17 @@ sudo apt-get install -y \
 log_success "Essential packages installed"
 
 ###############################################################################
+# 1b. Install Tailscale
+###############################################################################
+log_info "Installing Tailscale..."
+if ! command -v tailscale &> /dev/null; then
+    curl -fsSL https://tailscale.com/install.sh | sh
+    log_success "Tailscale installed — run 'sudo tailscale up --ssh' to join tailnet"
+else
+    log_success "Tailscale already installed"
+fi
+
+###############################################################################
 # 2. Install Starship prompt
 ###############################################################################
 log_info "Installing Starship prompt..."

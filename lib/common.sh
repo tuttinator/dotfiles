@@ -47,6 +47,10 @@ link_shared_dotfiles() {
     if [[ -d "$DOTFILES_DIR/.config/nvim" ]]; then
         backup_and_link "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
     fi
+
+    if [[ -f "$DOTFILES_DIR/mole/whitelist" ]]; then
+        backup_and_link "$DOTFILES_DIR/mole/whitelist" "$HOME/.config/mole/whitelist"
+    fi
 }
 
 # ── Remove legacy home-directory symlinks once XDG paths are set up ─────────
