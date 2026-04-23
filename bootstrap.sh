@@ -83,6 +83,16 @@ else
     exit 1
 fi
 
+# Install docker/tap/sbx separately — brew bundle fails to resolve it from the
+# Brewfile. See https://docs.docker.com/ai/sandboxes/
+if ! brew list sbx &> /dev/null && ! brew list --cask sbx &> /dev/null; then
+    log_info "Installing sbx from docker/tap..."
+    brew install docker/tap/sbx
+    log_success "sbx installed"
+else
+    log_success "sbx already installed"
+fi
+
 ###############################################################################
 # 4. Create necessary directories
 ###############################################################################
@@ -206,19 +216,19 @@ elif [[ -d /usr/local/opt/fzf ]]; then
     /usr/local/opt/fzf/install --all --no-bash --no-fish
 fi
 
-# Install Claude Code globally via npm
-if command -v npm &> /dev/null; then
-    log_info "Installing Claude Code via npm..."
-    npm install -g @anthropic-ai/claude-code
-    log_success "Claude Code installed globally"
+# Install Claude Code via the official native installer (auto-updates in the background)
+log_info "Installing Claude Code via native installer..."
+curl -fsSL https://claude.ai/install.sh | bash
+log_success "Claude Code installed"
 
-    # Pre-fetch ccstatusline so the first prompt render is instant
-    # (settings.json invokes it as `npx ccstatusline@latest` at status-line render time)
+# Pre-fetch ccstatusline so the first prompt render is instant
+# (settings.json invokes it as `npx ccstatusline@latest` at status-line render time)
+if command -v npm &> /dev/null; then
     log_info "Pre-fetching ccstatusline for Claude Code status line..."
     npm install -g ccstatusline
     log_success "ccstatusline installed globally"
 else
-    log_warning "npm not found, skipping Claude Code + ccstatusline installation"
+    log_warning "npm not found, skipping ccstatusline installation"
 fi
 
 # Configure Claude Code sound hooks with PeonPing on macOS

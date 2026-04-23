@@ -83,7 +83,9 @@ brew "dopplerhq/cli/doppler", link: true
 brew "oven-sh/bun/bun"
 brew "stripe/stripe-cli/stripe"
 brew "peonping/tap/peon-ping"
-brew "docker/tap/sbx"
+# docker/tap/sbx is installed separately in bootstrap.sh via
+# `brew install docker/tap/sbx` (see https://docs.docker.com/ai/sandboxes/).
+# brew bundle's stricter formula/cask split refuses to resolve it here.
 
 # Casks
 cask "android-platform-tools"

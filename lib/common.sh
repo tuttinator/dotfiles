@@ -81,12 +81,29 @@ configure_git_identity() {
 
 # ── Generate ed25519 SSH key if missing ─────────────────────────────────────
 # Pass "true" as first arg on macOS to add `UseKeychain yes` to ssh config.
+# Skips entirely if any common key OR an ~/.ssh/config already exists — the
+# function must never overwrite pre-existing SSH state.
 generate_ssh_key() {
     local with_keychain="${1:-false}"
     log_info "Setting up SSH keys..."
 
-    if [[ -f "$HOME/.ssh/id_ed25519" ]]; then
-        log_success "SSH key already exists"
+    # Check for any common default key name — not just id_ed25519 — to avoid
+    # generating a second key on a machine that already has one.
+    local existing_keys=()
+    for key in "$HOME/.ssh/id_ed25519" "$HOME/.ssh/id_rsa" "$HOME/.ssh/id_ecdsa" "$HOME/.ssh/id_dsa"; do
+        [[ -f "$key" ]] && existing_keys+=("$(basename "$key")")
+    done
+
+    if [[ ${#existing_keys[@]} -gt 0 ]]; then
+        log_success "Existing SSH key(s) found, skipping key generation: ${existing_keys[*]}"
+        return
+    fi
+
+    # If the user has an ssh config but no standard key, something non-trivial
+    # is going on — bail rather than risk clobbering custom host entries.
+    if [[ -f "$HOME/.ssh/config" ]]; then
+        log_warning "~/.ssh/config exists but no standard key found; skipping to avoid overwriting your config"
+        log_warning "Generate a key manually with: ssh-keygen -t ed25519 -C <email>"
         return
     fi
 

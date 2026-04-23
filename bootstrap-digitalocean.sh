@@ -93,13 +93,9 @@ eval "$(mise activate bash)"
 mise use --global node@lts
 log_success "Node.js LTS installed via mise"
 
-if command -v npm &> /dev/null; then
-    log_info "Installing Claude Code via npm..."
-    npm install -g @anthropic-ai/claude-code
-    log_success "Claude Code installed globally"
-else
-    log_warning "npm not found after mise setup, skipping Claude Code"
-fi
+log_info "Installing Claude Code via native installer..."
+curl -fsSL https://claude.ai/install.sh | bash
+log_success "Claude Code installed"
 
 ###############################################################################
 # 6. Install Antidote (zsh plugin manager)
