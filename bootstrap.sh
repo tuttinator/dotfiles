@@ -221,15 +221,34 @@ log_info "Installing Claude Code via native installer..."
 curl -fsSL https://claude.ai/install.sh | bash
 log_success "Claude Code installed"
 
-# Pre-fetch ccstatusline so the first prompt render is instant
-# (settings.json invokes it as `npx ccstatusline@latest` at status-line render time)
-if command -v npm &> /dev/null; then
-    log_info "Pre-fetching ccstatusline for Claude Code status line..."
-    npm install -g ccstatusline
-    log_success "ccstatusline installed globally"
-else
-    log_warning "npm not found, skipping ccstatusline installation"
-fi
+# Install the custom Claude Code status line script and register it + attribution
+# defaults in ~/.claude/settings.json. Empty attribution strings strip the default
+# "Co-Authored-By: Claude" / "Generated with Claude Code" trailers from commits/PRs.
+log_info "Configuring Claude Code status line and attribution..."
+mkdir -p "$HOME/.claude"
+install -m 0755 "$DOTFILES_DIR/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
+
+python3 - <<'PY'
+import json
+import os
+
+settings_path = os.path.expanduser("~/.claude/settings.json")
+statusline_cmd = f"bash {os.path.expanduser('~/.claude/statusline-command.sh')}"
+
+if os.path.exists(settings_path):
+    with open(settings_path) as f:
+        settings = json.load(f)
+else:
+    settings = {}
+
+settings["statusLine"] = {"type": "command", "command": statusline_cmd}
+settings["attribution"] = {"commit": "", "pr": ""}
+
+with open(settings_path, "w") as f:
+    json.dump(settings, f, indent=2)
+    f.write("\n")
+PY
+log_success "Status line script installed and attribution defaults written"
 
 # Configure Claude Code sound hooks with PeonPing on macOS
 if command -v peon &> /dev/null; then

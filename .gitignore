@@ -1,2 +1,3 @@
 # Per-machine bootstrap overrides (copy from dotfiles.local.toml.example)
 dotfiles.local.toml
+.claude/
