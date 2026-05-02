@@ -304,25 +304,56 @@ cat > "$BOOT_MOUNT/firstrun.sh" <<EOF
 #!/bin/bash
 # Runs once on first boot. Log to /boot/firmware/firstrun.log so you can inspect
 # it over SSH or by pulling the card afterwards.
-set -eux
+set -uxo pipefail
 exec > /boot/firmware/firstrun.log 2>&1
 
-# Wait for network (up to 2 minutes)
+cleanup() {
+    # Self-disable even if provisioning fails. This script is launched as the
+    # boot target, so returning non-zero leaves the Pi stuck at
+    # kernel-command-line.service instead of booting normally.
+    sed -i 's| systemd.run.*||' /boot/firmware/cmdline.txt || true
+}
+trap cleanup EXIT
+
+run_step() {
+    local description="\$1"
+    shift
+    echo "==> \$description"
+    if ! "\$@"; then
+        echo "WARNING: failed: \$description"
+        return 1
+    fi
+}
+
+# Wait for routable network and DNS (up to 2 minutes)
+NETWORK_READY=false
 for i in \$(seq 1 60); do
-    if ping -c1 -W2 1.1.1.1 >/dev/null 2>&1; then break; fi
+    if ping -c1 -W2 1.1.1.1 >/dev/null 2>&1 && getent hosts deb.debian.org >/dev/null 2>&1; then
+        NETWORK_READY=true
+        break
+    fi
     sleep 2
 done
 
+if [ "\$NETWORK_READY" != "true" ]; then
+    echo "WARNING: network/DNS did not become ready; skipping online provisioning."
+    exit 0
+fi
+
 export DEBIAN_FRONTEND=noninteractive
-apt-get update
-apt-get install -y curl ca-certificates git
+run_step "apt-get update" apt-get update || exit 0
+run_step "install curl, ca-certificates, git" apt-get install -y curl ca-certificates git || exit 0
 
 # Install Tailscale
-curl -fsSL https://tailscale.com/install.sh | sh
+echo "==> install Tailscale"
+if ! curl -fsSL https://tailscale.com/install.sh | sh; then
+    echo "WARNING: failed: install Tailscale"
+    exit 0
+fi
 
 # Join the tailnet (no-op if authkey is empty — 'tailscale up' will just fail loud)
 if [ -n "$TS_AUTHKEY" ]; then
-    tailscale up $TS_UP_FLAGS
+    run_step "join Tailscale" tailscale up $TS_UP_FLAGS || exit 0
 fi
 
 # Clone dotfiles into the Pi user's home and run bootstrap-linux.sh as that user
@@ -331,8 +362,6 @@ if [ -x "/home/$PI_USER/dotfiles/bootstrap-linux.sh" ]; then
     sudo -u "$PI_USER" bash -lc "cd /home/$PI_USER/dotfiles && ./bootstrap-linux.sh" || true
 fi
 
-# Self-disable: remove the cmdline.txt hook so we don't run again
-sed -i 's| systemd.run.*||' /boot/firmware/cmdline.txt || true
 rm -f /boot/firmware/firstrun.sh
 EOF
 chmod +x "$BOOT_MOUNT/firstrun.sh"

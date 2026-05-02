@@ -181,6 +181,15 @@ Common causes: wrong Wi-Fi country code, expired/invalid Tailscale auth key,
 Wi-Fi password with special characters that got mangled (the script writes
 TOML, so `"` and `\` in the PSK need escaping in `dotfiles.local.toml`).
 
+If `firstrun.log` shows repeated failed `ping -c1 -W2 1.1.1.1` attempts or
+`Temporary failure resolving`, the Pi did not have usable network/DNS during
+first boot. The script disables the one-shot boot hook so the Pi can boot
+normally; after fixing Wi-Fi, you can manually rerun:
+
+```bash
+sudo bash -x /boot/firmware/firstrun.sh
+```
+
 ## 📁 Structure
 
 ```text
