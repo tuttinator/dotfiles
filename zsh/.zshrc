@@ -66,11 +66,7 @@ export BAT_THEME="Monokai Extended"
 
 # ── Tool integrations ────────────────────────────────────────────────────────
 eval "$(/opt/homebrew/bin/mise activate zsh)"
-eval "$(atuin init zsh --disable-up-arrow)"
-# Up arrow: native zsh history (instant; gives last command).
-# Down arrow: open Atuin fuzzy history search.
-bindkey '^[[B' atuin-search
-bindkey '^[OB' atuin-search
+eval "$(atuin init zsh)"
 eval "$(zoxide init zsh)"
 eval "$(direnv hook zsh)"
 
