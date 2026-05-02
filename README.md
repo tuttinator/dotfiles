@@ -145,12 +145,14 @@ comes up on your Wi-Fi, joins your Tailscale tailnet, and runs
    final hostname (e.g. `pi-kitchen`).
 
 3. The script drops `custom.toml`, `firstrun.sh`, and patches `cmdline.txt`
-   onto the boot partition, then ejects. Insert the card into the Pi and power
-   it on. Within ~5 minutes it should appear on your tailnet:
+   onto the boot partition, then ejects. It includes the public keys from this
+   machine's `~/.ssh/*.pub` files in `custom.toml`, so Raspberry Pi OS firstboot
+   installs them for the Pi user. Insert the card into the Pi and power it on.
+   Within ~5 minutes it should appear on your tailnet:
 
    ```bash
    tailscale status | grep pi-kitchen
-   ssh caleb@pi-kitchen     # via Tailscale SSH if enabled, or your SSH key
+   ssh caleb@pi-kitchen     # passwordless via your local SSH key
    ```
 
 ### Optional: flash-and-prepare in one shot

@@ -5,8 +5,9 @@
 #
 # Reads the [pi] section of dotfiles.local.toml and writes:
 #   - custom.toml   : stock Pi OS Bookworm first-boot config (user, Wi-Fi, SSH,
-#                     hostname, locale, timezone). Handled by the firstboot
-#                     service — no custom scripting required for the basics.
+#                     authorized keys, hostname, locale, timezone). Handled by
+#                     the firstboot service — no custom scripting required for
+#                     the basics.
 #   - firstrun.sh   : runs once on first boot after firstboot completes; installs
 #                     Tailscale, joins the tailnet with the configured authkey,
 #                     clones dotfiles, and runs bootstrap-linux.sh.
@@ -58,6 +59,7 @@ Prerequisites:
   - $CONFIG_FILE with a populated [pi] section (see dotfiles.local.toml.example)
   - openssl in PATH (password hashing)
   - python3 in PATH (TOML parsing)
+  - at least one SSH public key in ~/.ssh/*.pub
   - For --flash: Raspberry Pi Imager installed (brew install --cask raspberry-pi-imager)
 EOF
 }
@@ -150,6 +152,46 @@ if [[ -z "$TS_AUTHKEY" || "$TS_AUTHKEY" == "tskey-auth-xxxxxxxxxxxx" ]]; then
 fi
 
 ###############################################################################
+# Collect local SSH public keys for passwordless SSH to the Pi
+###############################################################################
+SSH_AUTHORIZED_KEYS="$(mktemp)"
+trap 'rm -f "$SSH_AUTHORIZED_KEYS"' EXIT
+
+for key_file in "$HOME"/.ssh/*.pub; do
+    [[ -f "$key_file" ]] || continue
+    if grep -Eq '^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(256|384|521)|sk-ssh-ed25519@openssh.com|sk-ecdsa-sha2-nistp256@openssh.com) ' "$key_file"; then
+        cat "$key_file" >> "$SSH_AUTHORIZED_KEYS"
+    else
+        log_warning "Skipping unrecognized SSH public key: $key_file"
+    fi
+done
+
+if [[ ! -s "$SSH_AUTHORIZED_KEYS" ]]; then
+    log_error "No SSH public keys found in $HOME/.ssh/*.pub"
+    log_error "Create one first, e.g. ssh-keygen -t ed25519 -C \"you@example.com\""
+    exit 1
+fi
+KEY_COUNT=$(wc -l < "$SSH_AUTHORIZED_KEYS" | tr -d ' ')
+log_success "Collected $KEY_COUNT SSH public key(s) for the Pi user's authorized_keys"
+
+AUTHORIZED_KEYS_TOML=$(python3 - "$SSH_AUTHORIZED_KEYS" <<'PY'
+import json
+import pathlib
+import sys
+
+keys = [
+    line.strip()
+    for line in pathlib.Path(sys.argv[1]).read_text().splitlines()
+    if line.strip()
+]
+print("authorized_keys = [")
+for key in keys:
+    print(f"  {json.dumps(key)},")
+print("]")
+PY
+)
+
+###############################################################################
 # Optional: flash the SD card with rpi-imager --cli
 ###############################################################################
 if [[ -n "$FLASH_TARGET" ]]; then
@@ -231,6 +273,7 @@ password_encrypted = true
 [ssh]
 enabled = true
 password_authentication = true
+$AUTHORIZED_KEYS_TOML
 
 [wlan]
 ssid = "$WIFI_SSID"
@@ -243,6 +286,10 @@ country = "$WIFI_COUNTRY"
 keymap   = "us"
 timezone = "$TIMEZONE"
 EOF
+
+# Older versions staged this as a separate boot file. Key seeding now happens
+# through custom.toml so firstboot owns user creation and permissions.
+rm -f "$BOOT_MOUNT/authorized_keys"
 
 ###############################################################################
 # Write firstrun.sh — runs once after firstboot completes
