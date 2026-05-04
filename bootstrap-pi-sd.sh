@@ -252,6 +252,37 @@ log_success "Boot partition found at $BOOT_MOUNT"
 log_info "Hashing user password..."
 PI_PASSWORD_HASH=$(openssl passwd -6 "$PI_PASSWORD")
 
+# Escape user-supplied strings safely for TOML/YAML output using JSON-style
+# quoted strings (accepted by both formats).
+json_quote() {
+    python3 - "$1" <<'PY'
+import json, sys
+print(json.dumps(sys.argv[1]))
+PY
+}
+
+HOSTNAME_Q=$(json_quote "$HOSTNAME")
+PI_USER_Q=$(json_quote "$PI_USER")
+PI_PASSWORD_HASH_Q=$(json_quote "$PI_PASSWORD_HASH")
+WIFI_SSID_Q=$(json_quote "$WIFI_SSID")
+WIFI_PSK_Q=$(json_quote "$WIFI_PSK")
+WIFI_COUNTRY_Q=$(json_quote "$WIFI_COUNTRY")
+TIMEZONE_Q=$(json_quote "$TIMEZONE")
+
+AUTHORIZED_KEYS_YAML_INLINE=$(python3 - "$SSH_AUTHORIZED_KEYS" <<'PY'
+import json
+import pathlib
+import sys
+
+keys = [
+    line.strip()
+    for line in pathlib.Path(sys.argv[1]).read_text().splitlines()
+    if line.strip()
+]
+print(json.dumps(keys))
+PY
+)
+
 ###############################################################################
 # Write custom.toml (stock Pi OS first-boot config)
 #
@@ -263,11 +294,11 @@ cat > "$BOOT_MOUNT/custom.toml" <<EOF
 config_version = 1
 
 [system]
-hostname = "$HOSTNAME"
+hostname = $HOSTNAME_Q
 
 [user]
-name = "$PI_USER"
-password = "$PI_PASSWORD_HASH"
+name = $PI_USER_Q
+password = $PI_PASSWORD_HASH_Q
 password_encrypted = true
 
 [ssh]
@@ -276,16 +307,69 @@ password_authentication = true
 $AUTHORIZED_KEYS_TOML
 
 [wlan]
-ssid = "$WIFI_SSID"
-password = "$WIFI_PSK"
+ssid = $WIFI_SSID_Q
+password = $WIFI_PSK_Q
 password_encrypted = false
 hidden = false
-country = "$WIFI_COUNTRY"
+country = $WIFI_COUNTRY_Q
 
 [locale]
 keymap   = "us"
-timezone = "$TIMEZONE"
+timezone = $TIMEZONE_Q
 EOF
+
+###############################################################################
+# Cloud-init compatibility (newer Raspberry Pi OS images ship user-data and
+# network-config templates on bootfs)
+###############################################################################
+if [[ -f "$BOOT_MOUNT/user-data" || -f "$BOOT_MOUNT/network-config" ]]; then
+        log_info "Writing cloud-init compatible user-data and network-config..."
+
+        cat > "$BOOT_MOUNT/user-data" <<EOF
+#cloud-config
+hostname: $HOSTNAME_Q
+users:
+    - default
+    - {name: $PI_USER_Q, gecos: $PI_USER_Q, groups: [adm, sudo, audio, video, plugdev, users], shell: "/bin/bash", lock_passwd: false, passwd: $PI_PASSWORD_HASH_Q, ssh_authorized_keys: $AUTHORIZED_KEYS_YAML_INLINE}
+ssh_pwauth: true
+disable_root: true
+chpasswd: {expire: false}
+EOF
+
+        cat > "$BOOT_MOUNT/network-config" <<EOF
+network:
+    version: 2
+    ethernets:
+        eth0:
+            dhcp4: true
+            optional: true
+    wifis:
+        wlan0:
+            dhcp4: true
+            optional: true
+            access-points:
+                $WIFI_SSID_Q:
+                    password: $WIFI_PSK_Q
+            regulatory-domain: $WIFI_COUNTRY_Q
+EOF
+fi
+
+###############################################################################
+# Legacy compatibility (older Raspberry Pi OS images)
+###############################################################################
+log_info "Writing legacy compatibility files (userconf.txt, wpa_supplicant.conf, ssh)..."
+printf '%s:%s\n' "$PI_USER" "$PI_PASSWORD_HASH" > "$BOOT_MOUNT/userconf.txt"
+cat > "$BOOT_MOUNT/wpa_supplicant.conf" <<EOF
+country=$WIFI_COUNTRY
+ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
+update_config=1
+
+network={
+        ssid=$WIFI_SSID_Q
+        psk=$WIFI_PSK_Q
+}
+EOF
+touch "$BOOT_MOUNT/ssh"
 
 # Older versions staged this as a separate boot file. Key seeding now happens
 # through custom.toml so firstboot owns user creation and permissions.
@@ -305,15 +389,61 @@ cat > "$BOOT_MOUNT/firstrun.sh" <<EOF
 # Runs once on first boot. Log to /boot/firmware/firstrun.log so you can inspect
 # it over SSH or by pulling the card afterwards.
 set -uxo pipefail
-exec > /boot/firmware/firstrun.log 2>&1
+FROM_CMDLINE=true
+if [ "\${1:-}" = "--retry" ]; then
+    FROM_CMDLINE=false
+fi
+
+exec >> /boot/firmware/firstrun.log 2>&1
+echo ""
+echo "===== \$(date -Is) firstrun.sh start (from_cmdline=\$FROM_CMDLINE) ====="
+
+install_retry_service() {
+    cat > /etc/systemd/system/pi-firstrun-retry.service <<'UNIT'
+[Unit]
+Description=Retry Pi first-run provisioning until successful
+After=network-online.target
+Wants=network-online.target
+
+[Service]
+Type=oneshot
+ExecStart=/boot/firmware/firstrun.sh --retry
+
+[Install]
+WantedBy=multi-user.target
+UNIT
+
+    systemctl daemon-reload || true
+    systemctl enable pi-firstrun-retry.service || true
+}
+
+disable_retry_service() {
+    systemctl disable --now pi-firstrun-retry.service || true
+    rm -f /etc/systemd/system/pi-firstrun-retry.service
+    systemctl daemon-reload || true
+}
+
+ensure_hosts_matches_hostname() {
+    local current_hostname
+    current_hostname="\$(hostnamectl --static 2>/dev/null || hostname)"
+    if grep -qE '^127\\.0\\.1\\.1[[:space:]]+' /etc/hosts; then
+        sed -i -E "s|^127\\.0\\.1\\.1[[:space:]].*|127.0.1.1\\t\$current_hostname|" /etc/hosts || true
+    else
+        echo -e "127.0.1.1\\t\$current_hostname" >> /etc/hosts || true
+    fi
+}
 
 cleanup() {
-    # Self-disable even if provisioning fails. This script is launched as the
-    # boot target, so returning non-zero leaves the Pi stuck at
-    # kernel-command-line.service instead of booting normally.
-    sed -i 's| systemd.run.*||' /boot/firmware/cmdline.txt || true
+    # Always remove kernel-command-line hook so normal boot continues.
+    # Retry logic is handled by pi-firstrun-retry.service.
+    if [ "\$FROM_CMDLINE" = "true" ]; then
+        sed -i 's| systemd.run.*||' /boot/firmware/cmdline.txt || true
+    fi
 }
 trap cleanup EXIT
+
+install_retry_service
+ensure_hosts_matches_hostname
 
 run_step() {
     local description="\$1"
@@ -325,18 +455,18 @@ run_step() {
     fi
 }
 
-# Wait for routable network and DNS (up to 2 minutes)
+# Wait for network route + DNS (up to 10 minutes)
 NETWORK_READY=false
-for i in \$(seq 1 60); do
-    if ping -c1 -W2 1.1.1.1 >/dev/null 2>&1 && getent hosts deb.debian.org >/dev/null 2>&1; then
+for i in \$(seq 1 120); do
+    if ip route get 1.1.1.1 >/dev/null 2>&1 && getent hosts deb.debian.org >/dev/null 2>&1; then
         NETWORK_READY=true
         break
     fi
-    sleep 2
+    sleep 5
 done
 
 if [ "\$NETWORK_READY" != "true" ]; then
-    echo "WARNING: network/DNS did not become ready; skipping online provisioning."
+    echo "WARNING: network/DNS did not become ready; retry service will try again next boot."
     exit 0
 fi
 
@@ -362,6 +492,7 @@ if [ -x "/home/$PI_USER/dotfiles/bootstrap-linux.sh" ]; then
     sudo -u "$PI_USER" bash -lc "cd /home/$PI_USER/dotfiles && ./bootstrap-linux.sh" || true
 fi
 
+disable_retry_service
 rm -f /boot/firmware/firstrun.sh
 EOF
 chmod +x "$BOOT_MOUNT/firstrun.sh"
