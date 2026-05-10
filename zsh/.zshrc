@@ -38,9 +38,16 @@ else
 fi
 
 # ── PATH (consolidated) ──────────────────────────────────────────────────────
-# Homebrew's shellenv (sourced from .zprofile) already adds /opt/homebrew/bin.
 typeset -U path   # dedupe PATH entries automatically
+if [[ -x /opt/homebrew/bin/brew ]]; then
+    homebrew_prefix="/opt/homebrew"
+elif [[ -x /usr/local/bin/brew ]]; then
+    homebrew_prefix="/usr/local"
+fi
+
 path=(
+    ${homebrew_prefix:+$homebrew_prefix/bin}
+    ${homebrew_prefix:+$homebrew_prefix/sbin}
     "$HOME/.local/bin"
     "$HOME/bin"
     "$HOME/.yarn/bin"
@@ -55,6 +62,7 @@ path=(
     "/opt/homebrew/share/google-cloud-sdk/bin"
     $path
 )
+unset homebrew_prefix
 
 export ANDROID_HOME="$HOME/Library/Android/sdk"
 export BUN_INSTALL="$HOME/.bun"

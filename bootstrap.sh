@@ -250,6 +250,43 @@ with open(settings_path, "w") as f:
 PY
 log_success "Status line script installed and attribution defaults written"
 
+# Configure Codex to suppress generated git commit attribution trailers.
+log_info "Configuring Codex git attribution..."
+mkdir -p "$HOME/.codex"
+
+python3 - <<'PY'
+import os
+import re
+
+config_path = os.path.expanduser("~/.codex/config.toml")
+setting = 'commit_attribution = ""'
+assignment = re.compile(r"^\s*commit_attribution\s*=")
+table = re.compile(r"^\s*\[")
+
+if os.path.exists(config_path):
+    with open(config_path) as f:
+        lines = f.read().splitlines()
+else:
+    lines = []
+
+first_table = next((i for i, line in enumerate(lines) if table.match(line)), len(lines))
+
+for i in range(first_table):
+    if assignment.match(lines[i]):
+        lines[i] = setting
+        break
+else:
+    if first_table < len(lines):
+        lines[first_table:first_table] = [setting, ""]
+    else:
+        lines.append(setting)
+
+with open(config_path, "w") as f:
+    f.write("\n".join(lines))
+    f.write("\n")
+PY
+log_success "Codex git attribution disabled"
+
 # Configure Claude Code sound hooks with PeonPing on macOS
 if command -v peon &> /dev/null; then
     # Resolve the sound pack: optional override from dotfiles.local.toml,
