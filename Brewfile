@@ -23,6 +23,7 @@ brew "ffmpeg"
 brew "fzf"
 brew "fzy"
 brew "helm"
+brew "temporal"
 
 # Modern CLI tools
 brew "atuin"        # magical shell history with SQLite backend + sync
@@ -39,6 +40,7 @@ brew "zoxide"       # smart cd
 brew "tree"
 brew "htop"
 brew "gh"
+
 brew "git"
 brew "git-filter-repo"
 brew "git-lfs"
@@ -100,6 +102,7 @@ cask "cloudflare-warp"
 cask "dbeaver-community"
 cask "figma"
 cask "font-hack-nerd-font"
+cask "gcloud-cli"
 cask "iterm2"
 cask "ngrok"
 cask "orbstack"

@@ -52,6 +52,7 @@ path=(
     "$HOME/Library/Android/sdk/tools"
     "$HOME/Library/Android/sdk/tools/bin"
     "$HOME/Library/Android/sdk/platform-tools"
+    "/opt/homebrew/share/google-cloud-sdk/bin"
     $path
 )
 
