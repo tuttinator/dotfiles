@@ -1,5 +1,6 @@
 cask_args appdir: '/Applications'
 
+tap "atlassian/homebrew-acli"
 tap "aws/tap"
 tap "derailed/k9s"
 tap "dopplerhq/cli"
@@ -7,6 +8,7 @@ tap "oven-sh/bun"
 tap "pulumi/tap"
 tap "stripe/stripe-cli"
 
+brew "acli"
 brew "antidote"
 brew 'postgresql@17', link: true
 brew "aws-iam-authenticator"
