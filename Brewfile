@@ -64,6 +64,7 @@ brew "nmap"
 brew "node"
 brew "pgvector"
 brew "pipx"
+brew "pnpm"
 brew "r"
 brew "redis", restart_service: :changed
 brew "rust"
