@@ -251,6 +251,7 @@ PY
 log_success "Status line script installed and attribution defaults written"
 
 # Configure Codex to suppress generated git commit attribution trailers.
+# Codex itself (CLI and desktop app) is installed via the Brewfile.
 log_info "Configuring Codex git attribution..."
 mkdir -p "$HOME/.codex"
 
