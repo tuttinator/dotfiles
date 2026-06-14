@@ -4,6 +4,7 @@ tap "atlassian/homebrew-acli"
 tap "aws/tap"
 tap "derailed/k9s"
 tap "dopplerhq/cli"
+tap "kenn-io/tap"
 tap "oven-sh/bun"
 tap "pulumi/tap"
 tap "stripe/stripe-cli"
@@ -91,6 +92,7 @@ brew "dopplerhq/cli/doppler", link: true
 brew "oven-sh/bun/bun"
 brew "stripe/stripe-cli/stripe"
 brew "peonping/tap/peon-ping"
+brew "kenn-io/tap/roborev"
 # docker/tap/sbx is installed separately in bootstrap.sh via
 # `brew install docker/tap/sbx` (see https://docs.docker.com/ai/sandboxes/).
 # brew bundle's stricter formula/cask split refuses to resolve it here.
