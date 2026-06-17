@@ -75,7 +75,18 @@ export BAT_THEME="Monokai Extended"
 
 # ── Tool integrations ────────────────────────────────────────────────────────
 eval "$(/opt/homebrew/bin/mise activate zsh)"
-eval "$(atuin init zsh)"
+eval "$(atuin init zsh --disable-up-arrow)"
+# First up press → recall last command; second up press → atuin search
+_atuin_smart_up() {
+  if [[ "$LASTWIDGET" == "_atuin_smart_up" && -n "$BUFFER" ]]; then
+    zle _atuin_search_widget
+  else
+    zle up-line-or-history
+  fi
+}
+zle -N _atuin_smart_up
+bindkey '^[[A' _atuin_smart_up   # Up arrow
+bindkey '^[OA' _atuin_smart_up   # Up arrow (application mode)
 eval "$(zoxide init zsh)"
 eval "$(direnv hook zsh)"
 
