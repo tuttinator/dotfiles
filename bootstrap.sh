@@ -94,6 +94,16 @@ else
 fi
 
 ###############################################################################
+# 3b. Install Codex CLI
+###############################################################################
+log_info "Installing Codex CLI from the official installer..."
+if ! (set -o pipefail; curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh); then
+    log_error "Codex CLI installation failed"
+    exit 1
+fi
+log_success "Codex CLI installed"
+
+###############################################################################
 # 4. Create necessary directories
 ###############################################################################
 log_info "Creating necessary directories..."
@@ -251,7 +261,7 @@ PY
 log_success "Status line script installed and attribution defaults written"
 
 # Configure Codex to suppress generated git commit attribution trailers.
-# Codex itself (CLI and desktop app) is installed via the Brewfile.
+# The CLI is installed above with the official Codex installer.
 log_info "Configuring Codex git attribution..."
 mkdir -p "$HOME/.codex"
 

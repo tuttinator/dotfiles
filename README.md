@@ -49,7 +49,13 @@ If you prefer to set things up manually:
    brew bundle install
    ```
 
-3. **Symlink dotfiles**:
+3. **Install the Codex CLI**:
+
+   ```bash
+   curl -fsSL https://chatgpt.com/codex/install.sh | sh
+   ```
+
+4. **Symlink dotfiles**:
 
    ```bash
    ln -sf ~/dotfiles/zsh/.zshrc ~/.zshrc
@@ -59,7 +65,7 @@ If you prefer to set things up manually:
    ln -sf ~/dotfiles/tmux/.tmux.conf ~/.tmux.conf
    ```
 
-4. **Setup Zsh plugins**:
+5. **Setup Zsh plugins**:
 
    ```bash
    antidote bundle < zsh/zsh_plugins.txt > ~/.zsh_plugins.sh
