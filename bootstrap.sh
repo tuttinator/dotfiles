@@ -15,7 +15,7 @@ log_info "Dotfiles directory: $DOTFILES_DIR"
 ###############################################################################
 # 1. Install / update Xcode Command Line Tools
 #
-# Casks like qgis link against CLT headers; a pending CLT update makes
+# Some casks link against CLT headers; a pending CLT update makes
 # `brew bundle` fail halfway through. We install or update before proceeding.
 ###############################################################################
 log_info "Checking Xcode Command Line Tools..."
@@ -73,7 +73,20 @@ fi
 ###############################################################################
 # 3. Install packages from Brewfile
 ###############################################################################
-log_info "Installing packages from Brewfile..."
+# Install profile: "minimal" (default) skips heavy toolchains; "full" installs
+# everything. Override per-machine with DOTFILES_PROFILE=full ./bootstrap.sh
+#
+# The Brewfile reads HOMEBREW_DOTFILES_PROFILE, not DOTFILES_PROFILE — Homebrew
+# strips non-HOMEBREW_ vars from the environment before evaluating the Brewfile,
+# so an unprefixed var is silently ignored and you'd get "minimal" with no error.
+PROFILE="${DOTFILES_PROFILE:-minimal}"
+if [[ "$PROFILE" != "minimal" && "$PROFILE" != "full" ]]; then
+    log_error "Unknown DOTFILES_PROFILE: $PROFILE (expected 'minimal' or 'full')"
+    exit 1
+fi
+export HOMEBREW_DOTFILES_PROFILE="$PROFILE"
+
+log_info "Installing packages from Brewfile (profile: $PROFILE)..."
 if [[ -f "$DOTFILES_DIR/Brewfile" ]]; then
     cd "$DOTFILES_DIR"
     brew bundle install --verbose
