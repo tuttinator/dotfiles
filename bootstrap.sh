@@ -246,7 +246,9 @@ log_success "Claude Code installed"
 
 # Install the custom Claude Code status line script and register it + attribution
 # defaults in ~/.claude/settings.json. Empty attribution strings strip the default
-# "Co-Authored-By: Claude" / "Generated with Claude Code" trailers from commits/PRs.
+# "Co-Authored-By: Claude" / "Generated with Claude Code" trailers from commits/PRs,
+# and sessionUrl=false drops the "Claude-Session:" trailer / PR-body link added by
+# web and Remote Control sessions. Never put any attribution in here.
 log_info "Configuring Claude Code status line and attribution..."
 mkdir -p "$HOME/.claude"
 install -m 0755 "$DOTFILES_DIR/claude/statusline-command.sh" "$HOME/.claude/statusline-command.sh"
@@ -265,7 +267,7 @@ else:
     settings = {}
 
 settings["statusLine"] = {"type": "command", "command": statusline_cmd}
-settings["attribution"] = {"commit": "", "pr": ""}
+settings["attribution"] = {"commit": "", "pr": "", "sessionUrl": False}
 
 with open(settings_path, "w") as f:
     json.dump(settings, f, indent=2)
