@@ -1,5 +1,6 @@
 {
   "avante.nvim": { "branch": "main", "commit": "8a5a5c16a3c693bf7d9a8da1ee78269e8728879b" },
+  "copilot.lua": { "branch": "master", "commit": "7e6723aabea044519462958ffcea68d7985c5ed0" },
   "fzf": { "branch": "master", "commit": "3337be9d450cd349e99273a2d3985ceaf5f3753f" },
   "fzf.vim": { "branch": "master", "commit": "d2a59a992a2455f609c0fde2ebd84427ea8f919a" },
   "gitsigns.nvim": { "branch": "main", "commit": "31d6fb2d618bca1482b9f274751ead5f03461408" },
