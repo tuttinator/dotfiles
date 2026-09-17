@@ -2,12 +2,6 @@
 # Copy to dotfiles.local.toml (gitignored) and edit.
 # Any key left unset falls back to the defaults hard-coded in bootstrap.sh.
 
-[peon]
-# Active sound pack for Claude Code alerts. Browse packs with:
-#   peon packs list --registry
-# Examples: "nezuai-varied", "futurama_bender", "sc_battlecruiser", "peon"
-pack = "nezuai-varied"
-
 # Raspberry Pi SD-card provisioning. Consumed by bootstrap-pi-sd.sh.
 # Leave the [pi] block out entirely if you don't provision Pis from this machine.
 [pi]

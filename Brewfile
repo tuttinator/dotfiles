@@ -105,7 +105,6 @@ brew "vhs"          # scriptable terminal recordings -> GIF/MP4/WEBM
 brew "derailed/k9s/k9s"
 brew "oven-sh/bun/bun"
 brew "stripe/stripe-cli/stripe"
-brew "peonping/tap/peon-ping"
 brew "kenn-io/tap/roborev"
 # docker/tap/sbx is installed separately in bootstrap.sh via
 # `brew install docker/tap/sbx` (see https://docs.docker.com/ai/sandboxes/).
