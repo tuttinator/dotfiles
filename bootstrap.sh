@@ -106,6 +106,31 @@ else
     log_success "sbx already installed"
 fi
 
+# Install Slack from the official DMG rather than Homebrew so its built-in
+# updater owns the app. A Homebrew-managed copy drifts out of sync with the
+# self-updated app and `brew upgrade` then fails with "already an App".
+SLACK_CASKROOM="$(brew --caskroom)/slack"
+if [[ -d "$SLACK_CASKROOM" ]]; then
+    # Migration: forget the old cask without touching /Applications/Slack.app
+    # (`brew uninstall --cask slack` would delete the app).
+    log_info "Removing Homebrew's record of the Slack cask..."
+    rm -rf "$SLACK_CASKROOM"
+    log_success "Slack is no longer managed by Homebrew"
+fi
+
+if [[ ! -d "/Applications/Slack.app" ]]; then
+    log_info "Installing Slack from the official installer..."
+    SLACK_TMP="$(mktemp -d)"
+    curl -fsSL -o "$SLACK_TMP/Slack.dmg" "https://slack.com/ssb/download-osx-universal"
+    hdiutil attach -nobrowse -quiet -mountpoint "$SLACK_TMP/mnt" "$SLACK_TMP/Slack.dmg"
+    ditto "$SLACK_TMP/mnt/Slack.app" "/Applications/Slack.app"
+    hdiutil detach -quiet "$SLACK_TMP/mnt"
+    rm -rf "$SLACK_TMP"
+    log_success "Slack installed (it keeps itself up to date)"
+else
+    log_success "Slack already installed"
+fi
+
 ###############################################################################
 # 3b. Install Codex CLI
 ###############################################################################

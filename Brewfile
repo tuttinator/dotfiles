@@ -50,6 +50,7 @@ brew "atuin"        # magical shell history with SQLite backend + sync
 brew "bat"          # cat with syntax highlighting
 brew "direnv"       # per-directory env vars
 brew "doppler"      # secrets manager CLI (moved from dopplerhq/cli tap to core)
+brew "sops"         # encrypted secrets files (age/PGP/KMS)
 brew "eza"          # modern ls replacement
 brew "fd"           # fast, ergonomic find
 brew "git-delta"    # better git diff viewer
@@ -70,6 +71,7 @@ brew "gnupg"
 brew "go"
 brew "graphviz"
 brew "jq"
+brew "yq"           # jq for YAML
 brew "k6"
 brew "mosh"
 brew "opus"
@@ -130,7 +132,8 @@ cask "ngrok"
 cask "orbstack"
 cask "rectangle"
 cask "rstudio" if full   # ~1.7GB
-cask "slack"
+# slack is installed separately in bootstrap.sh from the official DMG so it
+# self-updates; a Homebrew-managed copy fights the built-in updater.
 cask "tailscale-app"
 cask "vlc"
 cask "visual-studio-code"
