@@ -37,6 +37,13 @@ else
     antidote load
 fi
 
+# The command-not-found plugin shells out to `brew which-formula`, which runs
+# Homebrew's auto-update when the API cache is stale — ~5s on a typo.
+if (( $+functions[homebrew_command_not_found_handle] )); then
+    functions[_brew_cnf_handle]=$functions[homebrew_command_not_found_handle]
+    homebrew_command_not_found_handle() { HOMEBREW_NO_AUTO_UPDATE=1 _brew_cnf_handle "$@" }
+fi
+
 # ── PATH (consolidated) ──────────────────────────────────────────────────────
 typeset -U path   # dedupe PATH entries automatically
 if [[ -x /opt/homebrew/bin/brew ]]; then

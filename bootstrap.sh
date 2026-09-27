@@ -118,19 +118,6 @@ if [[ -d "$SLACK_CASKROOM" ]]; then
     log_success "Slack is no longer managed by Homebrew"
 fi
 
-if [[ ! -d "/Applications/Slack.app" ]]; then
-    log_info "Installing Slack from the official installer..."
-    SLACK_TMP="$(mktemp -d)"
-    curl -fsSL -o "$SLACK_TMP/Slack.dmg" "https://slack.com/ssb/download-osx-universal"
-    hdiutil attach -nobrowse -quiet -mountpoint "$SLACK_TMP/mnt" "$SLACK_TMP/Slack.dmg"
-    ditto "$SLACK_TMP/mnt/Slack.app" "/Applications/Slack.app"
-    hdiutil detach -quiet "$SLACK_TMP/mnt"
-    rm -rf "$SLACK_TMP"
-    log_success "Slack installed (it keeps itself up to date)"
-else
-    log_success "Slack already installed"
-fi
-
 ###############################################################################
 # 3b. Install native macOS applications
 ###############################################################################

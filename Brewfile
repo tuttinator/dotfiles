@@ -133,7 +133,7 @@ cask "orbstack"
 cask "rectangle"
 cask "positron" if full  # data-science IDE; replaces RStudio and self-updates
 cask "quarto"            # standalone CLI for rendering outside Positron
-# slack is installed separately in bootstrap.sh from the official DMG so it
+# slack is installed separately in bootstrap.sh from the official PKG so it
 # self-updates; a Homebrew-managed copy fights the built-in updater.
 cask "tailscale-app"
 cask "vlc"
