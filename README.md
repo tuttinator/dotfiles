@@ -26,6 +26,8 @@ cd ~/dotfiles
 ## 📦 What's Included
 
 - **Homebrew packages**: Development tools, CLI utilities, and applications
+- **Data science**: Standalone Quarto CLI, plus Positron and R in the full profile
+- **Native installers**: Slack uses its vendor PKG and built-in updater
 - **Zsh configuration**: Custom `.zshrc` with plugins managed by Antidote
 - **Starship prompt**: Beautiful, fast shell prompt with Git integration
 - **Git configuration**: Global `.gitconfig` and `.gitignore_global`
@@ -48,6 +50,10 @@ If you prefer to set things up manually:
    ```bash
    brew bundle install
    ```
+
+   Use `HOMEBREW_DOTFILES_PROFILE=full brew bundle install` to include the
+   larger toolchains and IDEs such as R, Positron, and Android Studio. The
+   bootstrap script also installs Slack from its official native PKG.
 
 3. **Install the Codex CLI**:
 

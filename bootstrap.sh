@@ -132,7 +132,50 @@ else
 fi
 
 ###############################################################################
-# 3b. Install Codex CLI
+# 3b. Install native macOS applications
+###############################################################################
+# Slack's official PKG installs its privileged updater, so it can keep itself
+# current without Homebrew replacing the application bundle. The redirect URL
+# always resolves to the current build for this Mac's architecture.
+if [[ -d "/Applications/Slack.app" ]]; then
+    log_success "Slack is already installed"
+else
+    case "$(uname -m)" in
+        arm64) SLACK_ARCH="arm64" ;;
+        x86_64) SLACK_ARCH="x64" ;;
+        *)
+            log_error "Unsupported architecture for Slack: $(uname -m)"
+            exit 1
+            ;;
+    esac
+
+    SLACK_TMP_DIR="$(mktemp -d)"
+    SLACK_PKG="$SLACK_TMP_DIR/slack.pkg"
+    SLACK_URL="https://slack.com/api/desktop.latestRelease?arch=$SLACK_ARCH&redirect=1&variant=pkg"
+
+    log_info "Installing Slack from the official native package..."
+    if ! curl -fL --retry 3 "$SLACK_URL" -o "$SLACK_PKG"; then
+        rm -rf "$SLACK_TMP_DIR"
+        log_error "Slack download failed"
+        exit 1
+    fi
+    if ! SLACK_SIGNATURE="$(pkgutil --check-signature "$SLACK_PKG" 2>&1)" \
+        || [[ "$SLACK_SIGNATURE" != *"Developer ID Installer: SLACK TECHNOLOGIES L.L.C. (BQR82RBBHL)"* ]]; then
+        rm -rf "$SLACK_TMP_DIR"
+        log_error "Slack package signature could not be verified"
+        exit 1
+    fi
+    if ! sudo installer -pkg "$SLACK_PKG" -target /; then
+        rm -rf "$SLACK_TMP_DIR"
+        log_error "Slack installation failed"
+        exit 1
+    fi
+    rm -rf "$SLACK_TMP_DIR"
+    log_success "Slack installed (updates are managed by Slack)"
+fi
+
+###############################################################################
+# 3c. Install Codex CLI
 ###############################################################################
 log_info "Installing Codex CLI from the official installer..."
 if ! (set -o pipefail; curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh); then
@@ -349,6 +392,23 @@ if [[ -d "/Applications/Visual Studio Code.app" ]]; then
     fi
 else
     log_warning "Visual Studio Code not found in /Applications, skipping 'code' command setup"
+fi
+
+# Setup Positron's terminal command. Positron's Command Palette performs the
+# same app-bundle-to-PATH link interactively; using the existing user-local bin
+# directory keeps bootstrap non-interactive, idempotent, and password-free.
+log_info "Setting up Positron 'positron' command..."
+POSITRON_CLI="/Applications/Positron.app/Contents/Resources/app/bin/code"
+if [[ -x "$POSITRON_CLI" ]]; then
+    if ! command -v positron &> /dev/null; then
+        mkdir -p "$HOME/.local/bin"
+        ln -sf "$POSITRON_CLI" "$HOME/.local/bin/positron"
+        log_success "Positron 'positron' command installed"
+    else
+        log_success "Positron 'positron' command already available"
+    fi
+else
+    log_warning "Positron not found in /Applications, skipping 'positron' command setup"
 fi
 
 log_success "Additional tools configured"
