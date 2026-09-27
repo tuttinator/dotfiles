@@ -147,7 +147,6 @@ cleanup_legacy_symlinks
 log_info "Installing Zsh plugins with Antidote..."
 zsh -c "
     source '$ANTIDOTE_HOME/antidote.zsh'
-    antidote install < '$DOTFILES_DIR/zsh/zsh_plugins_linux.txt'
     antidote bundle < '$DOTFILES_DIR/zsh/zsh_plugins_linux.txt'
 " > ~/.zsh_plugins.sh
 log_success "Zsh plugins configured"
