@@ -55,6 +55,7 @@ brew "eza"          # modern ls replacement
 brew "fd"           # fast, ergonomic find
 brew "git-delta"    # better git diff viewer
 brew "lazygit"      # TUI for git
+brew "mailpit"      # local SMTP + web UI for captured mail
 brew "mas"          # Mac App Store CLI
 brew "mole"         # `mo clean` — cache/junk cleaner (whitelist lives in dotfiles/mole/)
 brew "ripgrep"      # fast grep (rg)
