@@ -78,6 +78,7 @@ brew "mosh"
 brew "opus"
 brew "kubernetes-cli"
 brew "kubectx"
+brew "sofka"        # Kubernetes TUI in Rust (k9s alternative)
 brew "mise"
 brew "neovim"
 brew "nmap"
