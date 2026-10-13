@@ -146,4 +146,4 @@ cask "viscosity"
 cask "zoom"
 cask "lm-studio" if full   # ~1.6GB
 cask "cursor"
-cask "raspberry-pi-imager"
+cask "raspberry-pi-imager" if full  # only needed for bootstrap-pi-sd.sh --flash
