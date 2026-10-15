@@ -59,6 +59,7 @@ brew "mailpit"      # local SMTP + web UI for captured mail
 brew "mas"          # Mac App Store CLI
 brew "mole"         # `mo clean` — cache/junk cleaner (whitelist lives in dotfiles/mole/)
 brew "ripgrep"      # fast grep (rg)
+brew "sesh"         # tmux session switcher (prefix + T)
 brew "zoxide"       # smart cd
 brew "tree"
 brew "htop"
