@@ -94,6 +94,7 @@ brew "ssh-copy-id"
 brew "starship"
 brew "tmux"
 brew "tpm"
+brew "tree-sitter-cli"  # nvim-treesitter (main branch) compiles parsers with it
 brew "unzip"
 brew "uv"
 brew "websocat"

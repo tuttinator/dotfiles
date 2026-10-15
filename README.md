@@ -31,7 +31,7 @@ cd ~/dotfiles
 - **Zsh configuration**: Custom `.zshrc` with plugins managed by Antidote
 - **Starship prompt**: Beautiful, fast shell prompt with Git integration
 - **Git configuration**: Global `.gitconfig` and `.gitignore_global`
-- **Neovim setup**: Editor configuration
+- **Neovim setup**: Lua config (lazy.nvim, treesitter, LSP, blink.cmp, snacks picker, Claude Code); needs Neovim 0.11+
 - **macOS defaults**: Sensible system preferences
 - **SSH key generation**: Automatic setup for GitHub
 
@@ -210,7 +210,7 @@ sudo bash -x /boot/firmware/firstrun.sh
 ├── Brewfile                  # Homebrew packages
 ├── .config/
 │   ├── starship.toml         # Starship prompt configuration
-│   └── nvim/                 # Neovim configuration
+│   └── nvim/                 # Neovim: init.lua, lua/config/*, lua/plugins/*
 ├── git/
 │   ├── .gitconfig           # Git global configuration
 │   └── .gitignore_global    # Global gitignore patterns
