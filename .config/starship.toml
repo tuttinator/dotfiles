@@ -4,6 +4,7 @@ format = """
 [](color_orange)\
 $os\
 $username\
+$hostname\
 [](bg:color_yellow fg:color_orange)\
 $directory\
 [](fg:color_yellow bg:color_aqua)\
@@ -22,9 +23,13 @@ $haskell\
 $python\
 [](fg:color_blue bg:color_bg3)\
 $docker_context\
+$kubernetes\
+$aws\
 $conda\
 $pixi\
 [](fg:color_bg3 bg:color_bg1)\
+$cmd_duration\
+$jobs\
 $time\
 [ ](fg:color_bg1)\
 $line_break$character"""
@@ -75,6 +80,13 @@ show_always = true
 style_user = "bg:color_orange fg:color_fg0"
 style_root = "bg:color_orange fg:color_fg0"
 format = '[ $user ]($style)'
+
+# Hostname only over SSH, with a globe so remote shells are unmistakable
+[hostname]
+ssh_only = true
+ssh_symbol = "󰖟 "
+style = "bg:color_orange fg:color_fg0 bold"
+format = '[$ssh_symbol$hostname ]($style)'
 
 [directory]
 style = "fg:color_fg0 bg:color_yellow"
@@ -153,6 +165,24 @@ symbol = ""
 style = "bg:color_bg3"
 format = '[[ $symbol( $context) ](fg:#83a598 bg:color_bg3)]($style)'
 
+# Current kube context (and namespace if set). Always on: the context is
+# global state, so it matters whichever directory you're in.
+[kubernetes]
+disabled = false
+symbol = "󱃾"
+style = "bg:color_bg3"
+format = '[[ $symbol $context( \($namespace\)) ](fg:#83a598 bg:color_bg3)]($style)'
+
+# Shorten EKS ARNs to the cluster name
+[[kubernetes.contexts]]
+context_pattern = "arn:aws:eks:.*:.*:cluster/(?P<cluster>.+)"
+context_alias = "$cluster"
+
+# Only shown when a named AWS profile is active (not the default region)
+[aws]
+style = "bg:color_bg3"
+format = '[[(  $profile )](fg:#83a598 bg:color_bg3)]($style)'
+
 [conda]
 style = "bg:color_bg3"
 format = '[[ $symbol( $environment) ](fg:#83a598 bg:color_bg3)]($style)'
@@ -160,6 +190,18 @@ format = '[[ $symbol( $environment) ](fg:#83a598 bg:color_bg3)]($style)'
 [pixi]
 style = "bg:color_bg3"
 format = '[[ $symbol( $version)( $environment) ](fg:color_fg0 bg:color_bg3)]($style)'
+
+# How long the last command took, when it ran 3s or more
+[cmd_duration]
+min_time = 3_000
+style = "bg:color_bg1"
+format = '[[ 󱦟 $duration ](fg:color_yellow bg:color_bg1)]($style)'
+
+# Count of background jobs (e.g. a suspended nvim)
+[jobs]
+symbol = ""
+style = "bg:color_bg1"
+format = '[[ $symbol $number ](fg:color_purple bg:color_bg1)]($style)'
 
 [time]
 disabled = false
