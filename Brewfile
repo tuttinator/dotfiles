@@ -123,13 +123,9 @@ cask "android-platform-tools"
 cask "android-studio" if full   # ~2.5GB
 cask "brewservicesmenubar"
 cask "bruno"
-cask "chatgpt"
-cask "claude"
 cask "cloudflare-warp"
-cask "codex-app"
 cask "dbeaver-community"
 cask "d12frosted/emacs-plus/emacs-plus-app"  # prebuilt Emacs 31 + native-comp; config is Doom
-cask "figma"
 cask "font-hack-nerd-font"
 cask "font-jetbrains-mono"
 cask "font-newsreader"
@@ -141,15 +137,12 @@ cask "orbstack"
 cask "rectangle"
 cask "positron" if full  # data-science IDE; replaces RStudio and self-updates
 cask "quarto"            # standalone CLI for rendering outside Positron
-# slack is installed separately in bootstrap.sh from the official PKG so it
-# self-updates; a Homebrew-managed copy fights the built-in updater.
+# Slack, VS Code, Claude, ChatGPT, Codex, Discord, Zoom and Figma are installed
+# by bootstrap.sh from their vendors' installers so their built-in updaters own
+# them; a Homebrew-managed copy fights the updater.
 cask "tailscale-app"
 cask "vlc"
-cask "visual-studio-code"
-cask "discord"
 cask "ollama-app" if full   # ~600MB
 cask "viscosity"
-cask "zoom"
 cask "lm-studio" if full   # ~1.6GB
-cask "cursor"
 cask "raspberry-pi-imager" if full  # only needed for bootstrap-pi-sd.sh --flash

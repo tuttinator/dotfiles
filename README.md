@@ -27,12 +27,13 @@ cd ~/dotfiles
 
 - **Homebrew packages**: Development tools, CLI utilities, and applications
 - **Data science**: Standalone Quarto CLI, plus Positron and R in the full profile
-- **Native installers**: Slack uses its vendor PKG and built-in updater
+- **Native installers**: Slack, VS Code, Claude, ChatGPT, Codex, Discord, Zoom and Figma come from their vendors' installers and keep themselves updated
 - **Zsh configuration**: Custom `.zshrc` with plugins managed by Antidote
 - **Starship prompt**: Beautiful, fast shell prompt with Git integration
 - **Git configuration**: Global `.gitconfig` and `.gitignore_global`
 - **Neovim setup**: Lua config (lazy.nvim, treesitter, LSP, blink.cmp, snacks picker, Claude Code); needs Neovim 0.11+
 - **Doom Emacs**: emacs-plus (Emacs 31) with a Doom config in `.config/doom` (evil, eglot, tree-sitter, magit, org, Claude Code via claude-code-ide.el)
+- **iTerm2**: shell integration on every machine, plus an `SSH` dynamic profile (`iterm2/DynamicProfiles/ssh.json`) that tints the tab and shows a badge while `ssh`/`mosh` runs or a Tailscale host is detected
 - **macOS defaults**: Sensible system preferences
 - **SSH key generation**: Automatic setup for GitHub
 
@@ -54,7 +55,8 @@ If you prefer to set things up manually:
 
    Use `HOMEBREW_DOTFILES_PROFILE=full brew bundle install` to include the
    larger toolchains and IDEs such as R, Positron, and Android Studio. The
-   bootstrap script also installs Slack from its official native PKG.
+   bootstrap script also installs Slack, VS Code, Claude, ChatGPT, Codex,
+   Discord, Zoom and Figma from their vendors' installers.
 
 3. **Install the Codex CLI**:
 

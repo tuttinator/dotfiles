@@ -113,60 +113,118 @@ else
     log_success "sbx already installed"
 fi
 
-# Install Slack from the official DMG rather than Homebrew so its built-in
-# updater owns the app. A Homebrew-managed copy drifts out of sync with the
-# self-updated app and `brew upgrade` then fails with "already an App".
-SLACK_CASKROOM="$(brew --caskroom)/slack"
-if [[ -d "$SLACK_CASKROOM" ]]; then
-    # Migration: forget the old cask without touching /Applications/Slack.app
-    # (`brew uninstall --cask slack` would delete the app).
-    log_info "Removing Homebrew's record of the Slack cask..."
-    rm -rf "$SLACK_CASKROOM"
-    log_success "Slack is no longer managed by Homebrew"
-fi
+###############################################################################
+# 3b. Install self-updating apps from their vendors' native installers
+###############################################################################
+# These apps ship their own updaters. A Homebrew-managed copy drifts out of
+# sync with the self-updated app and `brew upgrade` then fails with "already
+# an App", so we install them once from the vendor and let them update
+# themselves. Each download must be signed by the vendor's Developer ID team.
 
-###############################################################################
-# 3b. Install native macOS applications
-###############################################################################
-# Slack's official PKG installs its privileged updater, so it can keep itself
-# current without Homebrew replacing the application bundle. The redirect URL
-# always resolves to the current build for this Mac's architecture.
-if [[ -d "/Applications/Slack.app" ]]; then
-    log_success "Slack is already installed"
-else
-    case "$(uname -m)" in
-        arm64) SLACK_ARCH="arm64" ;;
-        x86_64) SLACK_ARCH="x64" ;;
-        *)
-            log_error "Unsupported architecture for Slack: $(uname -m)"
-            exit 1
-            ;;
+# Forget an old cask without touching the app. `brew uninstall --cask` would
+# delete the app from /Applications.
+forget_cask() {
+    local cask="$1"
+    local caskroom
+    caskroom="$(brew --caskroom)/$cask"
+    if [[ -d "$caskroom" ]]; then
+        log_info "Removing Homebrew's record of the $cask cask..."
+        rm -rf "$caskroom"
+    fi
+}
+
+# install_native_app <app name> <cask> <team id> <url>
+# The URL may serve a .pkg, .dmg or .zip; the type is sniffed from the file.
+install_native_app() {
+    local name="$1" cask="$2" team="$3" url="$4"
+    local tmp file kind mount app
+
+    forget_cask "$cask"
+    if [[ -d "/Applications/$name.app" ]]; then
+        log_success "$name is already installed"
+        return
+    fi
+
+    log_info "Installing $name from the vendor's installer..."
+    tmp="$(mktemp -d)"
+    file="$tmp/download"
+    if ! curl -fsSL --retry 3 "$url" -o "$file"; then
+        rm -rf "$tmp"
+        log_error "$name download failed"
+        return 1
+    fi
+
+    case "$(file -b "$file")" in
+        xar\ archive*) kind=pkg ;;
+        Zip\ archive*) kind=zip ;;
+        *) kind=dmg ;;
     esac
 
-    SLACK_TMP_DIR="$(mktemp -d)"
-    SLACK_PKG="$SLACK_TMP_DIR/slack.pkg"
-    SLACK_URL="https://slack.com/api/desktop.latestRelease?arch=$SLACK_ARCH&redirect=1&variant=pkg"
+    if [[ "$kind" == pkg ]]; then
+        if [[ "$(pkgutil --check-signature "$file" 2>&1)" != *"($team)"* ]]; then
+            rm -rf "$tmp"
+            log_error "$name package signature could not be verified"
+            return 1
+        fi
+        if ! sudo installer -pkg "$file" -target /; then
+            rm -rf "$tmp"
+            log_error "$name installation failed"
+            return 1
+        fi
+        rm -rf "$tmp"
+        log_success "$name installed (updates are managed by $name)"
+        return
+    fi
 
-    log_info "Installing Slack from the official native package..."
-    if ! curl -fL --retry 3 "$SLACK_URL" -o "$SLACK_PKG"; then
-        rm -rf "$SLACK_TMP_DIR"
-        log_error "Slack download failed"
-        exit 1
+    if [[ "$kind" == zip ]]; then
+        ditto -x -k "$file" "$tmp/x"
+        app="$(find "$tmp/x" -maxdepth 2 -name '*.app' -print -quit)"
+    else
+        mount="$(hdiutil attach -nobrowse -readonly -noautoopen "$file" 2>/dev/null \
+            | awk -F'\t' '/\/Volumes\// {print $NF; exit}')"
+        app="$(find "$mount" -maxdepth 1 -name '*.app' -print -quit 2>/dev/null || true)"
     fi
-    if ! SLACK_SIGNATURE="$(pkgutil --check-signature "$SLACK_PKG" 2>&1)" \
-        || [[ "$SLACK_SIGNATURE" != *"Developer ID Installer: SLACK TECHNOLOGIES L.L.C. (BQR82RBBHL)"* ]]; then
-        rm -rf "$SLACK_TMP_DIR"
-        log_error "Slack package signature could not be verified"
-        exit 1
+
+    if [[ -z "$app" ]] \
+        || ! codesign --verify --deep --strict "$app" 2>/dev/null \
+        || [[ "$(codesign -dv "$app" 2>&1)" != *"TeamIdentifier=$team"* ]]; then
+        [[ -n "$mount" ]] && hdiutil detach -quiet "$mount"
+        rm -rf "$tmp"
+        log_error "$name app signature could not be verified"
+        return 1
     fi
-    if ! sudo installer -pkg "$SLACK_PKG" -target /; then
-        rm -rf "$SLACK_TMP_DIR"
-        log_error "Slack installation failed"
-        exit 1
-    fi
-    rm -rf "$SLACK_TMP_DIR"
-    log_success "Slack installed (updates are managed by Slack)"
-fi
+
+    ditto "$app" "/Applications/$name.app"
+    [[ -n "$mount" ]] && hdiutil detach -quiet "$mount"
+    rm -rf "$tmp"
+    log_success "$name installed (updates are managed by $name)"
+}
+
+case "$(uname -m)" in
+    arm64) SLACK_ARCH="arm64"; ZOOM_ARCH="arm64"; FIGMA_ARCH="mac-arm" ;;
+    *)     SLACK_ARCH="x64";   ZOOM_ARCH="x86";   FIGMA_ARCH="mac" ;;
+esac
+
+# Claude's download page sits behind a bot check; its updater feed does not.
+CLAUDE_URL="$(curl -fsSL https://downloads.claude.ai/releases/darwin/universal/RELEASES.json \
+    | jq -r '.releases[-1].updateTo.url')"
+
+# Slack's PKG installs its privileged updater alongside the app.
+install_native_app "Slack" slack BQR82RBBHL \
+    "https://slack.com/api/desktop.latestRelease?arch=$SLACK_ARCH&redirect=1&variant=pkg"
+install_native_app "Visual Studio Code" visual-studio-code UBF8T346G9 \
+    "https://update.code.visualstudio.com/latest/darwin-universal/stable"
+install_native_app "Claude" claude Q6L2SF6YDW "$CLAUDE_URL"
+install_native_app "ChatGPT" chatgpt 2DC432GLL2 \
+    "https://persistent.oaistatic.com/sidekick/public/ChatGPT.dmg"
+install_native_app "Codex" codex-app 2DC432GLL2 \
+    "https://persistent.oaistatic.com/codex-app-prod/Codex.dmg"
+install_native_app "Discord" discord 53Q6R32WPB \
+    "https://discord.com/api/download?platform=osx"
+install_native_app "zoom.us" zoom BJ4HAAB9B3 \
+    "https://zoom.us/client/latest/zoomusInstallerFull.pkg?archType=$ZOOM_ARCH"
+install_native_app "Figma" figma T8RA8NE3B7 \
+    "https://desktop.figma.com/$FIGMA_ARCH/Figma.zip"
 
 ###############################################################################
 # 3c. Install Codex CLI
@@ -204,6 +262,12 @@ if [[ -f "$DOTFILES_DIR/rectangle/RectangleConfig.json" ]]; then
     mkdir -p "$HOME/Library/Preferences"
     backup_and_link "$DOTFILES_DIR/rectangle/RectangleConfig.json" "$HOME/Library/Preferences/com.knollsoft.Rectangle.plist"
 fi
+
+# iTerm2 SSH profile; its automatic profile switching rules colour the tab
+# whenever ssh/mosh is running or the shell reports a Tailscale host
+backup_and_link "$DOTFILES_DIR/iterm2/DynamicProfiles/ssh.json" \
+    "$HOME/Library/Application Support/iTerm2/DynamicProfiles/ssh.json"
+install_iterm2_shell_integration
 
 # Migration: remove legacy home-dir symlinks now that XDG paths exist
 cleanup_legacy_symlinks

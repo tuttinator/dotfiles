@@ -1,0 +1,51 @@
+{
+  "Profiles" : [
+    {
+      "Rewritable" : true,
+      "Guid" : "6E0B7A52-3C1D-4D8E-9A3F-55B1C0D2E7A1",
+      "Badge Font" : "HackNFM-Bold",
+      "Dynamic Profile Parent Name" : "Default",
+      "Name" : "SSH",
+      "Tab Color (Dark)" : {
+        "Red Component" : 0.95299999999999996,
+        "Color Space" : "sRGB",
+        "Blue Component" : 0.65900000000000003,
+        "Alpha Component" : 1,
+        "Green Component" : 0.54500000000000004
+      },
+      "Bound Hosts" : [
+        "&ssh",
+        "&mosh-client",
+        "*.tail1efd9b.ts.net",
+        "pi-study*",
+        "mac-mini*",
+        "calebs-mac-mini*",
+        "Calebs-Mac-mini*",
+        "macbook-m1*"
+      ],
+      "Window Type" : 0,
+      "Use Separate Colors for Light and Dark Mode" : true,
+      "Tab Color" : {
+        "Red Component" : 0.95299999999999996,
+        "Color Space" : "sRGB",
+        "Blue Component" : 0.65900000000000003,
+        "Alpha Component" : 1,
+        "Green Component" : 0.54500000000000004
+      },
+      "Use Tab Color (Dark)" : true,
+      "Badge Text" : "\\(session.commandLine)",
+      "Tags" : [
+        "ssh"
+      ],
+      "Tab Color (Light)" : {
+        "Red Component" : 0.95299999999999996,
+        "Color Space" : "sRGB",
+        "Blue Component" : 0.65900000000000003,
+        "Alpha Component" : 1,
+        "Green Component" : 0.54500000000000004
+      },
+      "Use Tab Color" : true,
+      "Use Tab Color (Light)" : true
+    }
+  ]
+}

@@ -45,6 +45,9 @@ fi
 # ── fzf (if installed) ──────────────────────────────────────────────────────
 [ -f ~/.fzf.zsh ] && source ~/.fzf.zsh
 
+# ── iTerm2 shell integration (reports this host to iTerm2 over SSH) ─────────
+[ -f ~/.iterm2_shell_integration.zsh ] && source ~/.iterm2_shell_integration.zsh
+
 # ── Aliases ──────────────────────────────────────────────────────────────────
 # eza (modern ls replacement) — only if installed
 if command -v eza &> /dev/null; then

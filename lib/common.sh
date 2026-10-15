@@ -16,6 +16,19 @@ log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
 log_error()   { echo -e "${RED}[ERROR]${NC} $1"; }
 
+# ── iTerm2 shell integration ─────────────────────────────────────────────────
+# Reports host, directory and command marks to iTerm2, which its automatic
+# profile switching relies on. The zshrc sources it, so only the script is
+# fetched (the official installer would also append to ~/.zshrc).
+install_iterm2_shell_integration() {
+    log_info "Installing iTerm2 shell integration..."
+    if curl -fsSL https://iterm2.com/shell_integration/zsh -o "$HOME/.iterm2_shell_integration.zsh"; then
+        log_success "iTerm2 shell integration installed"
+    else
+        log_warning "Could not download iTerm2 shell integration, skipping"
+    fi
+}
+
 # ── Symlink helper: backs up collisions, creates parent dirs ─────────────────
 backup_and_link() {
     local source_path="$1"

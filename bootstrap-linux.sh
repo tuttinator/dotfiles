@@ -139,6 +139,7 @@ backup_and_link "$DOTFILES_DIR/zsh/.zshrc.linux" "$HOME/.zshrc"
 backup_and_link "$DOTFILES_DIR/zsh/zsh_plugins_linux.txt" "$HOME/.zsh_plugins.txt"
 
 link_shared_dotfiles
+install_iterm2_shell_integration
 cleanup_legacy_symlinks
 
 ###############################################################################
