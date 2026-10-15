@@ -18,6 +18,7 @@ full = PROFILE == "full"
 
 tap "atlassian/homebrew-acli"
 tap "aws/tap"
+tap "d12frosted/emacs-plus"  # needs `brew trust` (bootstrap.sh does it)
 tap "derailed/k9s"
 tap "kenn-io/tap"
 tap "oven-sh/bun"
@@ -53,6 +54,7 @@ brew "doppler"      # secrets manager CLI (moved from dopplerhq/cli tap to core)
 brew "sops"         # encrypted secrets files (age/PGP/KMS)
 brew "eza"          # modern ls replacement
 brew "fd"           # fast, ergonomic find
+brew "coreutils"    # GNU ls (gls) for Doom's dired
 brew "git-delta"    # better git diff viewer
 brew "lazygit"      # TUI for git
 brew "mailpit"      # local SMTP + web UI for captured mail
@@ -126,10 +128,12 @@ cask "claude"
 cask "cloudflare-warp"
 cask "codex-app"
 cask "dbeaver-community"
+cask "d12frosted/emacs-plus/emacs-plus-app"  # prebuilt Emacs 31 + native-comp; config is Doom
 cask "figma"
 cask "font-hack-nerd-font"
 cask "font-jetbrains-mono"
 cask "font-newsreader"
+cask "font-symbols-only-nerd-font"  # icons for Doom (nerd-icons)
 cask "gcloud-cli"
 cask "iterm2"
 cask "ngrok"

@@ -89,6 +89,13 @@ export HOMEBREW_DOTFILES_PROFILE="$PROFILE"
 log_info "Installing packages from Brewfile (profile: $PROFILE)..."
 if [[ -f "$DOTFILES_DIR/Brewfile" ]]; then
     cd "$DOTFILES_DIR"
+    # Homebrew 7 refuses to load third-party tap formulae/casks until trusted
+    brew tap d12frosted/emacs-plus
+    brew trust --cask d12frosted/emacs-plus/emacs-plus-app
+    for formula in derailed/k9s/k9s kenn-io/tap/roborev oven-sh/bun/bun stripe/stripe-cli/stripe; do
+        brew tap "${formula%/*}"
+        brew trust --formula "$formula"
+    done
     brew bundle install --verbose
     log_success "Packages installed from Brewfile"
 else
@@ -291,6 +298,18 @@ if [[ -d /opt/homebrew/opt/fzf ]]; then
     /opt/homebrew/opt/fzf/install --all --no-bash --no-fish
 elif [[ -d /usr/local/opt/fzf ]]; then
     /usr/local/opt/fzf/install --all --no-bash --no-fish
+fi
+
+# Doom Emacs: framework in ~/.config/emacs, config linked from dotfiles/.config/doom
+if command -v emacs &> /dev/null; then
+    if [[ ! -d "$HOME/.config/emacs" ]]; then
+        log_info "Installing Doom Emacs..."
+        git clone --depth 1 https://github.com/doomemacs/core "$HOME/.config/emacs"
+        "$HOME/.config/emacs/bin/doom" install --force --no-config
+        log_success "Doom Emacs installed"
+    else
+        "$HOME/.config/emacs/bin/doom" sync
+    fi
 fi
 
 # Install Claude Code via the official native installer (auto-updates in the background)

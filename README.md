@@ -32,6 +32,7 @@ cd ~/dotfiles
 - **Starship prompt**: Beautiful, fast shell prompt with Git integration
 - **Git configuration**: Global `.gitconfig` and `.gitignore_global`
 - **Neovim setup**: Lua config (lazy.nvim, treesitter, LSP, blink.cmp, snacks picker, Claude Code); needs Neovim 0.11+
+- **Doom Emacs**: emacs-plus (Emacs 31) with a Doom config in `.config/doom` (evil, eglot, tree-sitter, magit, org, Claude Code via claude-code-ide.el)
 - **macOS defaults**: Sensible system preferences
 - **SSH key generation**: Automatic setup for GitHub
 
@@ -210,7 +211,8 @@ sudo bash -x /boot/firmware/firstrun.sh
 ├── Brewfile                  # Homebrew packages
 ├── .config/
 │   ├── starship.toml         # Starship prompt configuration
-│   └── nvim/                 # Neovim: init.lua, lua/config/*, lua/plugins/*
+│   ├── nvim/                 # Neovim: init.lua, lua/config/*, lua/plugins/*
+│   └── doom/                 # Doom Emacs: init.el (modules), packages.el, config.el
 ├── git/
 │   ├── .gitconfig           # Git global configuration
 │   └── .gitignore_global    # Global gitignore patterns

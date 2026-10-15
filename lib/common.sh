@@ -48,6 +48,11 @@ link_shared_dotfiles() {
         backup_and_link "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"
     fi
 
+    # Doom Emacs user config ($DOOMDIR); Doom itself lives in ~/.config/emacs
+    if [[ -d "$DOTFILES_DIR/.config/doom" ]]; then
+        backup_and_link "$DOTFILES_DIR/.config/doom" "$HOME/.config/doom"
+    fi
+
     if [[ -f "$DOTFILES_DIR/mole/whitelist" ]]; then
         backup_and_link "$DOTFILES_DIR/mole/whitelist" "$HOME/.config/mole/whitelist"
     fi
