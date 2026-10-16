@@ -57,6 +57,7 @@ path=(
     ${homebrew_prefix:+$homebrew_prefix/sbin}
     "$HOME/.local/bin"
     "$HOME/bin"
+    "$HOME/.config/emacs/bin"
     "$HOME/.yarn/bin"
     "$HOME/.config/yarn/global/node_modules/.bin"
     "$HOME/.bun/bin"
