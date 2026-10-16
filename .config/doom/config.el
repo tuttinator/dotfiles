@@ -52,3 +52,16 @@
   (setq claude-code-ide-terminal-backend 'ghostel)
   ;; Let Claude use xref, project, imenu and tree-sitter via MCP tools
   (claude-code-ide-emacs-tools-setup))
+
+;;; GitHub PR review
+
+(use-package! pr-review
+  :commands (pr-review pr-review-open pr-review-search pr-review-notification)
+  :init
+  (map! :leader
+        (:prefix ("g" . "git")
+         (:prefix ("v" . "review PRs")
+          :desc "Open PR by URL"     "v" #'pr-review
+          :desc "Open PR at point"   "o" #'pr-review-open
+          :desc "Search PRs"         "s" #'pr-review-search
+          :desc "Review requests"    "n" #'pr-review-notification))))

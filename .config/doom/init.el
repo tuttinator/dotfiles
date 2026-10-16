@@ -53,7 +53,7 @@
        llm                  ; gptel, for quick questions outside Claude Code
        lookup
        (lsp +eglot)         ; built-in eglot; servers come from brew/npm/mise
-       magit
+       (magit +forge)       ; Forge: PRs and issues inside Magit
        tree-sitter
 
        :os

@@ -10,3 +10,6 @@
 
 ;; Matches nvim, tmux and the iTerm2 profile
 (package! catppuccin-theme)
+
+;; Line-by-line GitHub PR review (inline threads, approve/request changes)
+(package! pr-review)
