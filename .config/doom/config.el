@@ -64,4 +64,161 @@
           :desc "Open PR by URL"     "v" #'pr-review
           :desc "Open PR at point"   "o" #'pr-review-open
           :desc "Search PRs"         "s" #'pr-review-search
-          :desc "Review requests"    "n" #'pr-review-notification))))
+          :desc "Review requests"    "n" #'pr-review-notification)))
+  :config
+  ;; pr-review fetches synchronously and stays silent until it's done, so say
+  ;; what it's doing before each slow step (redisplay, or Emacs won't show it)
+  (defun +pr-review--progress (fmt &rest args)
+    (apply #'message fmt args)
+    (redisplay t))
+  (defun +pr-review--progress-fetch (&rest _)
+    (apply #'+pr-review--progress "Fetching PR %s/%s/%s…" pr-review--pr-path))
+  (defun +pr-review--progress-diff (&rest _)
+    (+pr-review--progress "Fetching diff…"))
+  (advice-add 'pr-review--fetch-pr-info :before #'+pr-review--progress-fetch)
+  (advice-add 'pr-review--fetch-compare :before #'+pr-review--progress-diff)
+
+  ;; Syntax-highlighting the diff is most of the load time (a 16k-line PR took
+  ;; 15s of 18s), so skip it for big diffs
+  (defvar +pr-review-syntax-line-limit 5000
+    "Diffs with more lines than this are shown without syntax highlighting.")
+  (defun +pr-review--render (orig pr diff &rest args)
+    (let* ((lines (if (stringp diff) (cl-count ?\n diff) 0))
+           (big (> lines +pr-review-syntax-line-limit))
+           (pr-review-diff-font-lock-syntax
+            (unless big pr-review-diff-font-lock-syntax)))
+      (if big
+          (+pr-review--progress "Rendering %d-line diff (no syntax highlighting)…" lines)
+        (+pr-review--progress "Rendering…"))
+      (apply orig pr diff args)))
+  (advice-add 'pr-review--insert-pr :around #'+pr-review--render)
+
+  ;; Claude Code in the local clone of the PR's repo, primed with the PR
+  (defvar +pr-review-clone-roots '("~/Projects")
+    "Where clones live, as ROOT/OWNER/REPO or ROOT/REPO.")
+
+  (defun +pr-review--local-clone (owner repo)
+    "Find a local clone of OWNER/REPO, or ask."
+    (or (seq-find #'file-directory-p
+                  (mapcan (lambda (root)
+                            (list (expand-file-name (format "%s/%s" owner repo) root)
+                                  (expand-file-name repo root)))
+                          +pr-review-clone-roots))
+        (seq-find
+         (lambda (root)
+           (and (string-equal-ignore-case
+                 (file-name-nondirectory (directory-file-name root)) repo)
+                (let ((default-directory root))
+                  (string-match-p
+                   (regexp-quote (format "%s/%s" owner repo))
+                   (or (ignore-errors (car (process-lines "git" "remote" "get-url" "origin")))
+                       "")))))
+         (mapcar #'expand-file-name (projectile-relevant-known-projects)))
+        (read-directory-name (format "Local clone of %s/%s: " owner repo))))
+
+  (defvar claude-code-ide-cli-extra-flags)  ; let-bound below, so make it dynamic
+
+  (defun +pr-review/claude ()
+    "Start Claude Code in this PR's local clone, told which PR is under review."
+    (interactive)
+    (require 'claude-code-ide)
+    (pcase-let* ((`(,owner ,repo ,number) pr-review--pr-path)
+                 (default-directory (file-name-as-directory
+                                     (+pr-review--local-clone owner repo)))
+                 (prompt (format "I'm reviewing https://github.com/%s/%s/pull/%s. \
+Read it with `gh pr view %s` and `gh pr diff %s`, then wait for my questions."
+                                 owner repo number number number))
+                 (claude-code-ide-cli-extra-flags
+                  (string-trim (concat claude-code-ide-cli-extra-flags " "
+                                       (shell-quote-argument prompt)))))
+      (claude-code-ide)))
+
+  ;; GitHub-style "files changed" sidebar, grouped by directory
+
+  ;; GitHub-style "files changed" sidebar, grouped by directory
+  (set-popup-rule! "^\\*PR files" :side 'left :size 45 :select t :quit nil :ttl nil)
+
+  (defvar-local +pr-review-files--review-buffer nil
+    "The pr-review buffer this sidebar belongs to.")
+
+  (define-derived-mode +pr-review-files-mode special-mode "PR files"
+    "Sidebar listing the files changed in a pr-review buffer.")
+
+  (defun +pr-review-files--jump (&optional keep-focus)
+    "Jump to the diff of the file on this line; stay in the sidebar if KEEP-FOCUS."
+    (interactive)
+    (when-let* ((file (get-text-property (line-beginning-position) '+pr-review-file))
+                (review +pr-review-files--review-buffer)
+                (win (or (get-buffer-window review) (display-buffer review))))
+      (with-selected-window win
+        (pr-review-goto-file file)
+        (recenter 0))
+      (unless keep-focus (select-window win))))
+
+  (defun +pr-review-files--preview ()
+    "Show the file on this line without leaving the sidebar."
+    (interactive)
+    (+pr-review-files--jump t))
+
+  (defun +pr-review/files-sidebar ()
+    "Show the files changed in the current PR in a sidebar."
+    (interactive)
+    (unless (derived-mode-p 'pr-review-mode)
+      (user-error "Not in a pr-review buffer"))
+    (let ((review (current-buffer))
+          (files (sort (delete-dups (pr-review--find-all-file-names)) #'string<))
+          (buf (get-buffer-create
+                (format "*PR files: %s*"
+                        (string-remove-prefix "pr-review " (string-trim (buffer-name) "\\*" "\\*")))))
+          last-dir)
+      (with-current-buffer buf
+        (+pr-review-files-mode)
+        (setq +pr-review-files--review-buffer review)
+        (let ((inhibit-read-only t))
+          (erase-buffer)
+          (insert (propertize (format "%d files changed\n" (length files))
+                              'face 'magit-section-heading))
+          (dolist (file files)
+            (let ((dir (or (file-name-directory file) "./")))
+              (unless (equal dir last-dir)
+                (insert "\n" (nerd-icons-icon-for-dir dir) " "
+                        (propertize dir 'face 'font-lock-comment-face) "\n")
+                (setq last-dir dir))
+              (insert (propertize (concat "  " (nerd-icons-icon-for-file file)
+                                          " " (file-name-nondirectory file))
+                                  '+pr-review-file file
+                                  'mouse-face 'highlight)
+                      "\n"))))
+        (goto-char (point-min)))
+      (pop-to-buffer buf)))
+
+  (map! :map +pr-review-files-mode-map
+        :n "RET"     #'+pr-review-files--jump
+        :n "o"       #'+pr-review-files--preview
+        :n "q"       #'quit-window
+        :n "g r"     #'+pr-review/files-sidebar-refresh
+        [mouse-1]    #'+pr-review-files--click)
+
+  (defun +pr-review-files--click (event)
+    "Jump to the file clicked on."
+    (interactive "e")
+    (mouse-set-point event)
+    (+pr-review-files--jump))
+
+  (defun +pr-review/files-sidebar-refresh ()
+    "Rebuild the sidebar from its pr-review buffer."
+    (interactive)
+    (when-let ((review +pr-review-files--review-buffer))
+      (with-current-buffer review (+pr-review/files-sidebar))))
+
+  (map! :map pr-review-mode-map
+        :localleader
+        :desc "Files sidebar" "f" #'+pr-review/files-sidebar
+        :desc "Go to file"    "g" #'pr-review-goto-file
+        :desc "Ask Claude"    "c" #'+pr-review/claude))
+
+;; Let emacsclient (and the `prr' shell function) talk to this Emacs. Only the
+;; first Emacs started gets the server; later ones skip it.
+(add-hook! 'doom-after-init-hook
+  (require 'server)
+  (unless (or (daemonp) (server-running-p)) (server-start)))

@@ -105,6 +105,19 @@ alias ll='eza -l --icons --git --group-directories-first'
 alias la='eza -la --icons --git --group-directories-first'
 alias lt='eza --tree --level=2 --icons --git-ignore'
 
+# ── Functions ────────────────────────────────────────────────────────────────
+# Review a GitHub PR in Emacs (pr-review).  `prr` = current branch's PR,
+# `prr 113` = PR 113 of this repo, `prr <url>` = any PR.  Opens in this
+# terminal via the running Emacs server, or starts a fresh Emacs.
+prr() {
+  local url=$1
+  if [[ -z $url || $url == <-> ]]; then
+    url=$(gh pr view $url --json url --jq .url) || return
+  fi
+  local form="(pr-review \"$url\")"
+  emacsclient -t --eval "$form" 2>/dev/null || emacs -nw --eval "$form"
+}
+
 # ── Deferred (non-critical, speeds up shell startup) ─────────────────────────
 if (( $+functions[zsh-defer] )); then
     zsh-defer source "${HOME}/.iterm2_shell_integration.zsh" 2>/dev/null
