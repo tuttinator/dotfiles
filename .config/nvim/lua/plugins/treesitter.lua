@@ -4,7 +4,7 @@
 local parsers = {
   'bash', 'c', 'css', 'diff', 'dockerfile', 'elixir', 'go', 'gomod', 'html',
   'javascript', 'jsdoc', 'json', 'lua', 'luadoc', 'markdown', 'markdown_inline',
-  'python', 'query', 'regex', 'ruby', 'rust', 'sql', 'toml', 'tsx',
+  'python', 'query', 'regex', 'ruby', 'rust', 'sql', 'swift', 'toml', 'tsx',
   'typescript', 'vim', 'vimdoc', 'yaml',
 }
 

@@ -16,6 +16,7 @@
        nav-flash
        ophints
        (popup +defaults)
+       treemacs             ; SPC o p project drawer (≈ neo-tree)
        (vc-gutter +pretty)  ; ≈ gitsigns
        vi-tilde-fringe
        workspaces
@@ -72,6 +73,7 @@
        (ruby +lsp +tree-sitter)
        (rust +lsp +tree-sitter)
        (sh +lsp)
+       (swift +lsp +tree-sitter)
        (web +lsp +tree-sitter)
        (yaml +lsp +tree-sitter)
 
