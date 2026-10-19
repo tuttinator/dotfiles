@@ -20,6 +20,10 @@
   (setq evil-escape-key-sequence "jk"
         evil-escape-unordered-key-sequence t))
 
+;; Soft-wrap long lines everywhere (SPC t w toggles it per buffer). Read-only
+;; "special" buffers such as pr-review are skipped; they opt in below.
+(+global-word-wrap-mode +1)
+
 ;; j/k move by visual line on wrapped text (Doom already makes Y yank to eol)
 (map! :nm "j" #'evil-next-visual-line
       :nm "k" #'evil-previous-visual-line)
@@ -81,6 +85,8 @@
           :desc "Search PRs"         "s" #'pr-review-search
           :desc "Review requests"    "n" #'pr-review-notification)))
   :config
+  (add-hook 'pr-review-mode-hook #'+word-wrap-mode)
+
   ;; pr-review fetches synchronously and stays silent until it's done, so say
   ;; what it's doing before each slow step (redisplay, or Emacs won't show it)
   (defun +pr-review--progress (fmt &rest args)

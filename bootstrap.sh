@@ -201,13 +201,21 @@ install_native_app() {
 }
 
 case "$(uname -m)" in
-    arm64) SLACK_ARCH="arm64"; ZOOM_ARCH="arm64"; FIGMA_ARCH="mac-arm" ;;
-    *)     SLACK_ARCH="x64";   ZOOM_ARCH="x86";   FIGMA_ARCH="mac" ;;
+    arm64) SLACK_ARCH="arm64"; ZOOM_ARCH="arm64"; FIGMA_ARCH="mac-arm"
+           ORBSTACK_ARCH="arm64"; DBEAVER_ARCH="aarch64"; VLC_ARCH="arm64"
+           ANDROID_STUDIO_ARCH="mac_arm" ;;
+    *)     SLACK_ARCH="x64";   ZOOM_ARCH="x86";   FIGMA_ARCH="mac"
+           ORBSTACK_ARCH="amd64"; DBEAVER_ARCH="x86_64"; VLC_ARCH="intel64"
+           ANDROID_STUDIO_ARCH="mac" ;;
 esac
 
 # Claude's download page sits behind a bot check; its updater feed does not.
 CLAUDE_URL="$(curl -fsSL https://downloads.claude.ai/releases/darwin/universal/RELEASES.json \
     | jq -r '.releases[-1].updateTo.url')"
+
+# VLC has no "latest" link; its Sparkle feed lists releases oldest first.
+VLC_URL="$(curl -fsSL "https://update.videolan.org/vlc/sparkle/vlc-$VLC_ARCH.xml" \
+    | grep -o 'url="[^"]*\.dmg"' | tail -1 | cut -d'"' -f2 | sed 's|^http:|https:|')"
 
 # Slack's PKG installs its privileged updater alongside the app.
 install_native_app "Slack" slack BQR82RBBHL \
@@ -225,6 +233,42 @@ install_native_app "zoom.us" zoom BJ4HAAB9B3 \
     "https://zoom.us/client/latest/zoomusInstallerFull.pkg?archType=$ZOOM_ARCH"
 install_native_app "Figma" figma T8RA8NE3B7 \
     "https://desktop.figma.com/$FIGMA_ARCH/Figma.zip"
+install_native_app "iTerm" iterm2 H7V7XYVQ7D \
+    "https://iterm2.com/downloads/stable/latest"
+install_native_app "Rectangle" rectangle XSYZ3E4B7D \
+    "https://github.com/rxhanson/Rectangle/releases/latest/download/Rectangle.pkg"
+install_native_app "OrbStack" orbstack HUAQ24HBR6 \
+    "https://orbstack.dev/download/stable/latest/$ORBSTACK_ARCH"
+install_native_app "DBeaver" dbeaver-community 42B6MDKMW8 \
+    "https://dbeaver.io/files/dbeaver-ce-latest-macos-$DBEAVER_ARCH.dmg"
+install_native_app "Tailscale" tailscale-app W5364U7YZB \
+    "https://pkgs.tailscale.com/stable/Tailscale-latest-macos.pkg"
+install_native_app "Cloudflare WARP" cloudflare-warp 68WVV388M8 \
+    "https://downloads.cloudflareclient.com/v1/download/macos/ga"
+install_native_app "Viscosity" viscosity 34XR7GXFPX \
+    "https://www.sparklabs.com/downloads/Viscosity.dmg"
+install_native_app "VLC" vlc 75GAHG3SZQ "$VLC_URL"
+
+if [[ "$PROFILE" == full ]]; then
+    POSITRON_URL="$(curl -fsSL https://cdn.posit.co/positron/releases/mac/universal/releases.json \
+        | jq -r '.url')"
+    # Android Studio's links carry the version, so take the current one from its page
+    ANDROID_STUDIO_URL="$(curl -fsSL https://developer.android.com/studio \
+        | grep -o "https://[^\"]*android-studio-[^\"]*-$ANDROID_STUDIO_ARCH\.dmg" | head -1)"
+
+    install_native_app "Positron" positron FYF2F5GFX4 "$POSITRON_URL"
+    install_native_app "Ollama" ollama-app 3MU9H2V9Y9 \
+        "https://ollama.com/download/Ollama.dmg"
+    install_native_app "Android Studio" android-studio EQHXZ8M8AV "$ANDROID_STUDIO_URL"
+    # Only needed for bootstrap-pi-sd.sh --flash
+    install_native_app "Raspberry Pi Imager" raspberry-pi-imager 8RDZTRXE62 \
+        "https://downloads.raspberrypi.org/imager/imager_latest.dmg"
+    # LM Studio only ships for Apple Silicon on macOS
+    if [[ "$(uname -m)" == arm64 ]]; then
+        install_native_app "LM Studio" lm-studio D65G88RHWN \
+            "https://lmstudio.ai/download/latest/darwin/arm64"
+    fi
+fi
 
 ###############################################################################
 # 3c. Install Codex CLI

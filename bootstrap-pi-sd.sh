@@ -60,7 +60,7 @@ Prerequisites:
   - openssl in PATH (password hashing)
   - python3 in PATH (TOML parsing)
   - at least one SSH public key in ~/.ssh/*.pub
-  - For --flash: Raspberry Pi Imager installed (brew install --cask raspberry-pi-imager)
+  - For --flash: Raspberry Pi Imager installed (https://downloads.raspberrypi.org/imager/imager_latest.dmg)
 EOF
 }
 
@@ -198,7 +198,7 @@ if [[ -n "$FLASH_TARGET" ]]; then
     RPI_IMAGER="/Applications/Raspberry Pi Imager.app/Contents/MacOS/rpi-imager"
     if [[ ! -x "$RPI_IMAGER" ]]; then
         log_error "Raspberry Pi Imager not found at $RPI_IMAGER"
-        log_error "Install with: brew install --cask raspberry-pi-imager"
+        log_error "Install from: https://downloads.raspberrypi.org/imager/imager_latest.dmg"
         exit 1
     fi
 

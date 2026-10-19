@@ -27,7 +27,7 @@ cd ~/dotfiles
 
 - **Homebrew packages**: Development tools, CLI utilities, and applications
 - **Data science**: Standalone Quarto CLI, plus Positron and R in the full profile
-- **Native installers**: Slack, VS Code, Claude, ChatGPT, Codex, Discord, Zoom and Figma come from their vendors' installers and keep themselves updated
+- **Native installers**: Slack, VS Code, Claude, ChatGPT, Codex, Discord, Zoom, Figma, iTerm2, Rectangle, OrbStack, DBeaver, Tailscale, Cloudflare WARP, Viscosity and VLC (plus Positron, Ollama, LM Studio, Android Studio and Raspberry Pi Imager in the full profile) come from their vendors' installers and keep themselves updated
 - **Zsh configuration**: Custom `.zshrc` with plugins managed by Antidote
 - **Starship prompt**: Beautiful, fast shell prompt with Git integration
 - **Git configuration**: Global `.gitconfig` and `.gitignore_global`
@@ -54,9 +54,9 @@ If you prefer to set things up manually:
    ```
 
    Use `HOMEBREW_DOTFILES_PROFILE=full brew bundle install` to include the
-   larger toolchains and IDEs such as R, Positron, and Android Studio. The
-   bootstrap script also installs Slack, VS Code, Claude, ChatGPT, Codex,
-   Discord, Zoom and Figma from their vendors' installers.
+   larger toolchains such as R. The bootstrap script installs the GUI apps
+   (Slack, iTerm2, OrbStack, Tailscale and the rest, plus Positron and
+   Android Studio in the full profile) from their vendors' installers.
 
 3. **Install the Codex CLI**:
 
@@ -139,11 +139,9 @@ comes up on your Wi-Fi, joins your Tailscale tailnet, and runs
    pre-approved is easiest). `dotfiles.local.toml` is gitignored — don't check
    it in.
 
-2. Install Raspberry Pi Imager if you haven't already:
-
-   ```bash
-   brew install --cask raspberry-pi-imager
-   ```
+2. Install Raspberry Pi Imager if you haven't already. `DOTFILES_PROFILE=full
+   ./bootstrap.sh` installs it, or download it from
+   https://downloads.raspberrypi.org/imager/imager_latest.dmg.
 
 ### Provisioning a card (default, safe path)
 

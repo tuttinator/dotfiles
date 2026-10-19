@@ -119,30 +119,16 @@ brew "kenn-io/tap/roborev"
 # brew bundle's stricter formula/cask split refuses to resolve it here.
 
 # Casks
+# Apps with their own updaters (iTerm2, Rectangle, OrbStack, Tailscale, VLC,
+# Positron and the rest) are installed by bootstrap.sh from their vendors'
+# installers; a Homebrew-managed copy fights the updater. What's left here is
+# CLIs, fonts and Emacs, which nothing else keeps up to date.
 cask "android-platform-tools"
-cask "android-studio" if full   # ~2.5GB
-cask "brewservicesmenubar"
-cask "bruno"
-cask "cloudflare-warp"
-cask "dbeaver-community"
 cask "d12frosted/emacs-plus/emacs-plus-app"  # prebuilt Emacs 31 + native-comp; config is Doom
 cask "font-hack-nerd-font"
 cask "font-jetbrains-mono"
 cask "font-newsreader"
 cask "font-symbols-only-nerd-font"  # icons for Doom (nerd-icons)
 cask "gcloud-cli"
-cask "iterm2"
 cask "ngrok"
-cask "orbstack"
-cask "rectangle"
-cask "positron" if full  # data-science IDE; replaces RStudio and self-updates
 cask "quarto"            # standalone CLI for rendering outside Positron
-# Slack, VS Code, Claude, ChatGPT, Codex, Discord, Zoom and Figma are installed
-# by bootstrap.sh from their vendors' installers so their built-in updaters own
-# them; a Homebrew-managed copy fights the updater.
-cask "tailscale-app"
-cask "vlc"
-cask "ollama-app" if full   # ~600MB
-cask "viscosity"
-cask "lm-studio" if full   # ~1.6GB
-cask "raspberry-pi-imager" if full  # only needed for bootstrap-pi-sd.sh --flash
