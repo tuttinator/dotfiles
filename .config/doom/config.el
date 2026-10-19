@@ -33,6 +33,10 @@
 ;; Notes live in ~/txt
 (setq org-directory "~/txt/")
 
+;; Build missing tree-sitter grammars without asking. The y/n prompt otherwise
+;; stalls pr-review halfway through rendering a diff.
+(setq treesit-auto-install-grammar 'always)
+
 ;;; Claude Code
 
 (use-package! claude-code-ide
@@ -54,6 +58,17 @@
   (claude-code-ide-emacs-tools-setup))
 
 ;;; GitHub PR review
+
+;; Forge and pr-review authenticate through ghub, which wants a token in
+;; ~/.authinfo. Borrow the gh CLI's login instead (fetched once per session).
+(defvar +ghub--gh-token nil)
+(defadvice! +ghub--gh-cli-token-a (host &rest _)
+  :before-until #'ghub--token
+  (when (and (equal host "api.github.com") (executable-find "gh"))
+    (or +ghub--gh-token
+        (let ((token (string-trim (shell-command-to-string "gh auth token 2>/dev/null"))))
+          (unless (string-empty-p token)
+            (setq +ghub--gh-token token))))))
 
 (use-package! pr-review
   :commands (pr-review pr-review-open pr-review-search pr-review-notification)

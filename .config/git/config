@@ -58,3 +58,6 @@
 [credential]
 	helper = !aws codecommit credential-helper $@
 	UseHttpPath = true
+
+[github]
+	user = tuttinator
