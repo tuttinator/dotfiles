@@ -182,6 +182,16 @@ prr() {
   emacsclient -t --eval "$form" 2>/dev/null || emacs -nw --eval "$form"
 }
 
+# `cheat` pages through dotfiles/cheatsheet.md; `cheat git` shows matching lines.
+cheat() {
+  local sheet=${${:-~/.zshrc}:A:h:h}/cheatsheet.md
+  if (( $# )); then
+    rg -i -- "$*" "$sheet" | bat --plain --paging=never --language=md
+  else
+    bat --style=plain --paging=always --language=md "$sheet"
+  fi
+}
+
 # ── Deferred (non-critical, speeds up shell startup) ─────────────────────────
 # fzf's zsh script binds Tab and Ctrl-R itself; keep Ctrl-T/Alt-C from it but
 # hand Tab back to fzf-tab and Ctrl-R back to atuin.

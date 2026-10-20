@@ -210,6 +210,7 @@ sudo bash -x /boot/firmware/firstrun.sh
 .
 ├── bootstrap.sh              # Automated setup script
 ├── Brewfile                  # Homebrew packages
+├── cheatsheet.md             # Keys, aliases and tools; run `cheat` to read it
 ├── mise.toml                 # Repo tasks: mise run bootstrap|lint|test
 ├── lefthook.yml              # Pre-commit: shellcheck, shfmt, stylua, gitleaks
 ├── stylua.toml               # Lua formatter config (Neovim)
