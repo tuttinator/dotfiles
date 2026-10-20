@@ -57,6 +57,7 @@ link_shared_dotfiles() {
     backup_and_link "$DOTFILES_DIR/.config/git/config" "$HOME/.config/git/config"
     backup_and_link "$DOTFILES_DIR/.config/git/ignore" "$HOME/.config/git/ignore"
     backup_and_link "$DOTFILES_DIR/.config/tmux/tmux.conf" "$HOME/.config/tmux/tmux.conf"
+    backup_and_link "$DOTFILES_DIR/.default-npm-packages" "$HOME/.default-npm-packages"
 
     if [[ -d "$DOTFILES_DIR/.config/nvim" ]]; then
         backup_and_link "$DOTFILES_DIR/.config/nvim" "$HOME/.config/nvim"

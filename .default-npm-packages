@@ -1,0 +1,9 @@
+# Global npm packages. mise installs these into every new Node version it
+# installs (it reads ~/.default-npm-packages); bootstrap.sh installs them
+# into the current one. Mostly language servers for Doom Emacs and nvim.
+typescript
+prettier
+pyright
+vscode-langservers-extracted
+yaml-language-server
+bash-language-server

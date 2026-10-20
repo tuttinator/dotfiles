@@ -38,6 +38,7 @@ brew "dotnet"
 brew "eksctl"
 brew "erlang" if full      # erlang+elixir: mac-mini only
 brew "elixir" if full
+brew "elixir-ls" if full   # language server for Emacs/nvim
 brew "fastlane"
 brew "xcodegen"     # was installed but undeclared
 brew "ffmpeg"
@@ -85,6 +86,7 @@ brew "git-lfs"
 brew "gnu-sed"
 brew "gnupg"
 brew "go"
+brew "gopls"        # Go language server
 brew "graphviz"
 brew "jq"
 brew "yq"           # jq for YAML
@@ -101,6 +103,7 @@ brew "shfmt"        # shell formatter (lefthook)
 brew "stylua"       # Lua formatter (lefthook, Neovim config)
 brew "gitleaks"     # secret scanner (lefthook)
 brew "neovim"
+brew "lua-language-server"
 brew "nmap"
 brew "node"
 brew "pgvector"
@@ -109,6 +112,7 @@ brew "pnpm"
 brew "r" if full      # r pulls gcc (~480MB) via openblas
 brew "redis", restart_service: :changed
 brew "rust" if full      # rust pulls llvm@22 (~1.5GB)
+brew "rust-analyzer" if full
 brew "solargraph"
 brew "ssh-copy-id"
 brew "starship"

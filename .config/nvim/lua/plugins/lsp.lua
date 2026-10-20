@@ -1,13 +1,19 @@
 -- Servers are enabled only if their binary is on PATH. No auto-install;
--- provide them with mise/brew/npm, e.g.
---   npm i -g typescript typescript-language-server pyright
---   brew install gopls rust-analyzer lua-language-server
+-- provide them with mise/brew/npm: the Brewfile and ~/.default-npm-packages
+-- cover these; sourcekit-lsp ships with Xcode/CLT.
 local servers = {
-  ts_ls = 'typescript-language-server',
+  tsc = 'tsc', -- TypeScript 7's built-in `tsc --lsp`; ts_ls can't drive TS 7
   gopls = 'gopls',
   rust_analyzer = 'rust-analyzer',
   pyright = 'pyright-langserver',
   lua_ls = 'lua-language-server',
+  sourcekit = 'sourcekit-lsp',
+  elixirls = 'elixir-ls',
+  html = 'vscode-html-language-server',
+  cssls = 'vscode-css-language-server',
+  jsonls = 'vscode-json-language-server',
+  yamlls = 'yaml-language-server',
+  bashls = 'bash-language-server',
 }
 
 return {

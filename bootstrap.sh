@@ -448,6 +448,10 @@ log_info "Setting up additional tools..."
 if command -v mise &>/dev/null; then
     mise install --yes
     log_success "mise tools installed from .config/mise/config.toml"
+
+    # Language servers etc. (mise only adds these to Node versions it installs later)
+    grep -v '^#' "$DOTFILES_DIR/.default-npm-packages" | xargs mise exec node -- npm install -g
+    log_success "Global npm packages installed"
 fi
 
 # llm: `llm cmd "..."` drafts a command to edit before running. Plugins live in

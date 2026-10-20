@@ -214,6 +214,7 @@ sudo bash -x /boot/firmware/firstrun.sh
 ├── mise.toml                 # Repo tasks: mise run bootstrap|lint|test
 ├── lefthook.yml              # Pre-commit: shellcheck, shfmt, stylua, gitleaks
 ├── stylua.toml               # Lua formatter config (Neovim)
+├── .default-npm-packages     # Global npm packages (language servers) for every mise Node
 ├── .config/
 │   ├── starship.toml         # Starship prompt configuration
 │   ├── mise/config.toml      # Pinned global tools (node, python, go)

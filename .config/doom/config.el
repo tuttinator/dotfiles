@@ -2,6 +2,15 @@
 
 ;; No `doom sync' needed after editing this file; restart or `SPC h r r'.
 
+;;; PATH
+
+;; Emacs.app started from Finder doesn't see .zshrc, so add Homebrew and mise
+;; shims (which pick each project's mise versions) for language servers etc.
+(dolist (dir (list "/opt/homebrew/bin" (expand-file-name "~/.local/share/mise/shims")))
+  (when (file-directory-p dir)
+    (add-to-list 'exec-path dir)
+    (setenv "PATH" (concat dir path-separator (getenv "PATH")))))
+
 ;;; Look
 
 ;; Tomorrow Night everywhere (iTerm, nvim, bat, glow, starship) except tmux,
@@ -35,6 +44,27 @@
       :n "C-j" #'evil-window-down
       :n "C-k" #'evil-window-up
       :n "C-l" #'evil-window-right)
+
+;;; Languages
+
+;; Homebrew's elixir-ls is named `elixir-ls', not eglot's `language_server.sh'
+(set-eglot-client! '(elixir-mode elixir-ts-mode heex-ts-mode) '("elixir-ls"))
+
+;; TypeScript 7 dropped tsserver.js (so typescript-language-server can't use
+;; it) and has its own `tsc --lsp'. Use the global tsc: Doom puts the
+;; project's node_modules/.bin first, where an older tsc lacks --lsp.
+(defun +typescript-lsp-contact (&rest _)
+  (list (let ((exec-path (default-value 'exec-path))) (or (executable-find "tsc") "tsc"))
+        "--lsp" "--stdio"))
+(set-eglot-client! '((js-mode :language-id "javascript")
+                     (js-ts-mode :language-id "javascript")
+                     (tsx-ts-mode :language-id "typescriptreact")
+                     (typescript-ts-mode :language-id "typescript")
+                     (typescript-mode :language-id "typescript"))
+                   #'+typescript-lsp-contact)
+
+;; Doom's web module opens HTML in web-mode, which eglot has no server for
+(set-eglot-client! 'web-mode '("vscode-html-language-server" "--stdio"))
 
 ;; Notes live in ~/txt
 (setq org-directory "~/txt/")

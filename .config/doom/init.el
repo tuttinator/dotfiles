@@ -74,7 +74,7 @@
        (ruby +lsp +tree-sitter)
        (rust +lsp +tree-sitter)
        (sh +lsp)
-       (swift +lsp +tree-sitter)
+       (swift +lsp +tree-sitter) ; sourcekit-lsp ships with Xcode/CLT
        (web +lsp +tree-sitter)
        (yaml +lsp +tree-sitter)
 
