@@ -34,21 +34,22 @@ $time\
 [ ](fg:color_bg1)\
 $line_break$character"""
 
-# Tomorrow Night, matching iTerm, Doom, Neovim, bat and glow
-palette = 'tomorrow_night'
+# Tomorrow Night Bright accents (Tomorrow Night's pastels look washed out as
+# solid blocks); greys and text stay Tomorrow Night to match the terminal
+palette = 'tomorrow_night_bright'
 
-[palettes.tomorrow_night]
+[palettes.tomorrow_night_bright]
 color_fg0 = '#1d1f21'     # text on the coloured segments
 color_fg1 = '#c5c8c6'     # text on the dark segments
 color_bg1 = '#282a2e'
 color_bg3 = '#373b41'
-color_blue = '#81a2be'
-color_aqua = '#8abeb7'
-color_green = '#b5bd68'
-color_orange = '#de935f'
-color_purple = '#b294bb'
-color_red = '#cc6666'
-color_yellow = '#f0c674'
+color_blue = '#7aa6da'
+color_aqua = '#70c0b1'
+color_green = '#b9ca4a'
+color_orange = '#e78c45'
+color_purple = '#c397d8'
+color_red = '#d54e53'
+color_yellow = '#e7c547'
 
 [os]
 disabled = false
