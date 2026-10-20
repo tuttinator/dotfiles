@@ -210,6 +210,8 @@ sudo bash -x /boot/firmware/firstrun.sh
 .
 ├── bootstrap.sh              # Automated setup script
 ├── Brewfile                  # Homebrew packages
+├── lefthook.yml              # Pre-commit: shellcheck, shfmt, stylua, gitleaks
+├── stylua.toml               # Lua formatter config (Neovim)
 ├── .config/
 │   ├── starship.toml         # Starship prompt configuration
 │   ├── nvim/                 # Neovim: init.lua, lua/config/*, lua/plugins/*

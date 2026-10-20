@@ -85,6 +85,11 @@ brew "kubernetes-cli"
 brew "kubectx"
 brew "sofka"        # Kubernetes TUI in Rust (k9s alternative)
 brew "mise"
+brew "lefthook"     # git hooks manager (lefthook.yml) — pre-commit lint + secret scan
+brew "shellcheck"   # shell linter (lefthook)
+brew "shfmt"        # shell formatter (lefthook)
+brew "stylua"       # Lua formatter (lefthook, Neovim config)
+brew "gitleaks"     # secret scanner (lefthook)
 brew "neovim"
 brew "nmap"
 brew "node"

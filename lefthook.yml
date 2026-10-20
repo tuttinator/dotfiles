@@ -1,0 +1,16 @@
+# Git hooks — install once per clone with: lefthook install
+# Run on demand with: lefthook run pre-commit --all-files  (or `mise run lint`)
+pre-commit:
+  parallel: true
+  commands:
+    shellcheck:
+      glob: "*.sh"
+      run: shellcheck {staged_files}
+    shfmt:
+      glob: "*.sh"
+      run: shfmt -d -i 4 -ci {staged_files}
+    stylua:
+      glob: "*.lua"
+      run: stylua --check {staged_files}
+    gitleaks:
+      run: gitleaks protect --staged --redact
