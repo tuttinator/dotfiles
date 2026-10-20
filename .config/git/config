@@ -3,6 +3,7 @@
 	email = caleb.tutty@gmail.com
 
 [alias]
+	dft = difftool --tool=difftastic --no-prompt
 	st = status
 	lol = log --graph --decorate --pretty=oneline --abbrev-commit
 	lola = log --graph --decorate --pretty=oneline --abbrev-commit --all
@@ -12,7 +13,13 @@
 	defaultBranch = main
 
 [core]
+	editor = nvim
 	pager = delta
+
+# Structural diff via difftastic: `git dft` (or `git difftool --tool=difftastic`).
+# Delta stays the default pager; difftastic is opt-in for syntax-aware diffs.
+[difftool "difftastic"]
+	cmd = difft "$LOCAL" "$REMOTE"
 
 [interactive]
 	diffFilter = delta --color-only

@@ -57,6 +57,7 @@ brew "eza"          # modern ls replacement
 brew "fd"           # fast, ergonomic find
 brew "coreutils"    # GNU ls (gls) for Doom's dired
 brew "git-delta"    # better git diff viewer
+brew "difftastic"   # structural diff (git dft) — understands syntax, not just lines
 brew "lazygit"      # TUI for git
 brew "mailpit"      # local SMTP + web UI for captured mail
 brew "mas"          # Mac App Store CLI
