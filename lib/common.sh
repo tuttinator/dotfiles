@@ -53,6 +53,7 @@ backup_and_link() {
 # ── Shared symlinks used by every platform (XDG layout) ──────────────────────
 link_shared_dotfiles() {
     backup_and_link "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
+    backup_and_link "$DOTFILES_DIR/.config/mise/config.toml" "$HOME/.config/mise/config.toml"
     backup_and_link "$DOTFILES_DIR/.config/git/config" "$HOME/.config/git/config"
     backup_and_link "$DOTFILES_DIR/.config/git/ignore" "$HOME/.config/git/ignore"
     backup_and_link "$DOTFILES_DIR/.config/tmux/tmux.conf" "$HOME/.config/tmux/tmux.conf"

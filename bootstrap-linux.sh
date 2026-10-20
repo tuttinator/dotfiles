@@ -95,17 +95,23 @@ fi
 log_info "Setting up runtimes via mise..."
 eval "$(mise activate bash)"
 
+# Versions are pinned in .config/mise/config.toml; link it before installing
+# (the full symlink pass happens later in section 7).
+if [[ -f "$DOTFILES_DIR/.config/mise/config.toml" ]]; then
+    mkdir -p "$HOME/.config/mise"
+    ln -sf "$DOTFILES_DIR/.config/mise/config.toml" "$HOME/.config/mise/config.toml"
+fi
+
 if [[ "$PI_MODEL" == "pi5" ]]; then
-    mise use --global node@lts
-    mise use --global python@latest
-    log_success "Node.js LTS and Python installed via mise"
+    mise install --yes
+    log_success "mise tools installed from .config/mise/config.toml"
 
     log_info "Installing Claude Code via native installer..."
     curl -fsSL https://claude.ai/install.sh | bash
     log_success "Claude Code installed"
 else
-    mise use --global node@lts
-    log_success "Node.js LTS installed via mise"
+    mise install --yes node
+    log_success "Node.js installed via mise (pinned in .config/mise/config.toml)"
     log_warning "Skipping Claude Code on Pi Zero 2 W (limited resources)"
 fi
 

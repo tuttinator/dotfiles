@@ -1,0 +1,7 @@
+# Global mise tools — symlinked to ~/.config/mise/config.toml by bootstrap.
+# Pin exact versions so every machine gets identical tooling.
+# Update with: mise upgrade --yes  (then commit the bump)
+[tools]
+node = "24.20.0"
+python = "3.15.0"
+go = "1.27.2"

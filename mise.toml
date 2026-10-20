@@ -1,0 +1,22 @@
+# Dotfiles project tasks — run with `mise run <task>` from the repo root.
+# Global tool versions live in .config/mise/config.toml (symlinked to
+# ~/.config/mise/config.toml); this file only defines repo tasks.
+
+[tasks.bootstrap]
+description = "Full machine setup (Homebrew, symlinks, plugins)"
+run = "./bootstrap.sh"
+
+[tasks.lint]
+description = "Lint shell and Lua, scan for secrets (lefthook, all files)"
+run = "lefthook run pre-commit --all-files"
+
+[tasks.test]
+description = "Syntax-check shell, git, and TOML configs"
+run = """
+zsh -n zsh/.zshrc
+zsh -n zsh/.zshrc.linux
+bash -n bootstrap.sh bootstrap-linux.sh lib/common.sh
+git config --file .config/git/config --list >/dev/null
+mise config ls >/dev/null
+echo "syntax OK"
+"""

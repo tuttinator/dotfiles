@@ -437,11 +437,12 @@ log_success "Essential services started"
 ###############################################################################
 log_info "Setting up additional tools..."
 
-# Setup mise (formerly rtx) for version management
+# Setup mise (formerly rtx) for version management.
+# Versions are pinned declaratively in .config/mise/config.toml (linked above);
+# `mise install` just installs whatever that file declares.
 if command -v mise &>/dev/null; then
-    mise use --global node@lts
-    mise use --global python@latest
-    log_success "mise configured with Node.js and Python"
+    mise install --yes
+    log_success "mise tools installed from .config/mise/config.toml"
 fi
 
 # Setup fzf key bindings and fuzzy completion

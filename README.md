@@ -210,10 +210,12 @@ sudo bash -x /boot/firmware/firstrun.sh
 .
 ├── bootstrap.sh              # Automated setup script
 ├── Brewfile                  # Homebrew packages
+├── mise.toml                 # Repo tasks: mise run bootstrap|lint|test
 ├── lefthook.yml              # Pre-commit: shellcheck, shfmt, stylua, gitleaks
 ├── stylua.toml               # Lua formatter config (Neovim)
 ├── .config/
 │   ├── starship.toml         # Starship prompt configuration
+│   ├── mise/config.toml      # Pinned global tools (node, python, go)
 │   ├── nvim/                 # Neovim: init.lua, lua/config/*, lua/plugins/*
 │   └── doom/                 # Doom Emacs: init.el (modules), packages.el, config.el
 ├── git/
