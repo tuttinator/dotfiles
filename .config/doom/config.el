@@ -4,8 +4,8 @@
 
 ;;; Look
 
-(setq catppuccin-flavor 'mocha
-      doom-theme 'catppuccin
+;; Catppuccin (mocha) is still installed to match nvim/tmux; SPC h t switches
+(setq doom-theme 'doom-tomorrow-night
       doom-font (font-spec :family "JetBrains Mono" :size 14)
       display-line-numbers-type t)
 
