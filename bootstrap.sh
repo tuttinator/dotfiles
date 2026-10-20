@@ -271,7 +271,7 @@ if [[ "$PROFILE" == full ]]; then
 fi
 
 ###############################################################################
-# 3c. Install Codex CLI
+# 3c. Install Codex CLI and Muse Code
 ###############################################################################
 log_info "Installing Codex CLI from the official installer..."
 if ! (set -o pipefail; curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh); then
@@ -279,6 +279,16 @@ if ! (set -o pipefail; curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_N
     exit 1
 fi
 log_success "Codex CLI installed"
+
+# Meta's Muse Code. MUSE_NO_MODIFY_PATH stops the installer appending a PATH
+# line to ~/.zshrc (a symlink into this repo); .zshrc already has ~/.local/bin.
+# Still experimental, so a failure here shouldn't stop the rest of bootstrap.
+log_info "Installing Muse Code from Meta's installer..."
+if (set -o pipefail; curl -fsSL https://dev.meta.ai/install.sh | MUSE_NO_MODIFY_PATH=1 bash); then
+    log_success "Muse Code installed"
+else
+    log_warning "Muse Code installation failed; continuing"
+fi
 
 ###############################################################################
 # 4. Create necessary directories
@@ -470,6 +480,13 @@ with open(settings_path, "w") as f:
     f.write("\n")
 PY
 log_success "Status line script installed and attribution defaults written"
+
+# Personal Claude Code skills live in dotfiles/claude/skills; each skill folder is
+# symlinked so edits in the repo apply without re-running bootstrap.
+log_info "Linking Claude Code skills..."
+for skill_dir in "$DOTFILES_DIR"/claude/skills/*/; do
+    backup_and_link "${skill_dir%/}" "$HOME/.claude/skills/$(basename "$skill_dir")"
+done
 
 # Configure Codex to suppress generated git commit attribution trailers.
 # The CLI is installed above with the official Codex installer.
