@@ -1,0 +1,3 @@
+# Let shellcheck follow `source "$DOTFILES_DIR/lib/common.sh"` even when
+# lefthook passes only the staged script.
+external-sources=true
