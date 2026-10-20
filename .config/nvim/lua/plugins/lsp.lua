@@ -55,7 +55,14 @@ return {
     event = 'BufWritePre',
     cmd = 'ConformInfo',
     keys = {
-      { '<leader>lf', function() require('conform').format({ async = true }) end, mode = { 'n', 'x' }, desc = 'Format' },
+      {
+        '<leader>lf',
+        function()
+          require('conform').format({ async = true })
+        end,
+        mode = { 'n', 'x' },
+        desc = 'Format',
+      },
       {
         '<leader>tf',
         function()
@@ -81,7 +88,9 @@ return {
       },
       default_format_opts = { lsp_format = 'fallback' },
       format_on_save = function()
-        if vim.g.disable_autoformat then return end
+        if vim.g.disable_autoformat then
+          return
+        end
         return { timeout_ms = 1000 }
       end,
     },
@@ -102,16 +111,22 @@ return {
       }
       local function installed(name)
         local linter = lint.linters[name]
-        if type(linter) == 'function' then linter = linter() end
+        if type(linter) == 'function' then
+          linter = linter()
+        end
         local cmd = type(linter) == 'table' and linter.cmd or name
-        if type(cmd) == 'function' then cmd = cmd() end
+        if type(cmd) == 'function' then
+          cmd = cmd()
+        end
         return vim.fn.executable(cmd) == 1
       end
       vim.api.nvim_create_autocmd({ 'BufReadPost', 'BufWritePost', 'InsertLeave' }, {
         group = vim.api.nvim_create_augroup('user_lint', { clear = true }),
         callback = function()
           local names = vim.tbl_filter(installed, lint.linters_by_ft[vim.bo.filetype] or {})
-          if #names > 0 then lint.try_lint(names) end
+          if #names > 0 then
+            lint.try_lint(names)
+          end
         end,
       })
     end,

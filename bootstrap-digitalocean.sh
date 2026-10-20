@@ -7,7 +7,7 @@
 
 set -e
 
-DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$DOTFILES_DIR/lib/common.sh"
 
 log_info "Dotfiles directory: $DOTFILES_DIR"
@@ -43,15 +43,16 @@ log_success "Essential packages installed"
 # 2. Install Docker
 ###############################################################################
 log_info "Installing Docker..."
-if ! command -v docker &> /dev/null; then
+if ! command -v docker &>/dev/null; then
     sudo install -m 0755 -d /etc/apt/keyrings
     curl -fsSL https://download.docker.com/linux/ubuntu/gpg | sudo gpg --dearmor -o /etc/apt/keyrings/docker.gpg
     sudo chmod a+r /etc/apt/keyrings/docker.gpg
 
+    # shellcheck disable=SC1091 # /etc/os-release exists on the Ubuntu target, not this Mac
     echo \
-      "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
-      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" | \
-      sudo tee /etc/apt/sources.list.d/docker.list > /dev/null
+        "deb [arch=$(dpkg --print-architecture) signed-by=/etc/apt/keyrings/docker.gpg] https://download.docker.com/linux/ubuntu \
+      $(. /etc/os-release && echo "$VERSION_CODENAME") stable" |
+        sudo tee /etc/apt/sources.list.d/docker.list >/dev/null
 
     sudo apt-get update
     sudo apt-get install -y docker-ce docker-ce-cli containerd.io docker-buildx-plugin docker-compose-plugin
@@ -66,7 +67,7 @@ fi
 # 3. Install Starship prompt
 ###############################################################################
 log_info "Installing Starship prompt..."
-if ! command -v starship &> /dev/null; then
+if ! command -v starship &>/dev/null; then
     curl -sS https://starship.rs/install.sh | sh -s -- -y
     log_success "Starship installed"
 else
@@ -77,7 +78,7 @@ fi
 # 4. Install mise (version manager)
 ###############################################################################
 log_info "Installing mise..."
-if ! command -v mise &> /dev/null; then
+if ! command -v mise &>/dev/null; then
     curl https://mise.run | sh
     export PATH="$HOME/.local/bin:$PATH"
     log_success "mise installed"
@@ -137,7 +138,7 @@ log_info "Installing Zsh plugins with Antidote..."
 zsh -c "
     source '$ANTIDOTE_HOME/antidote.zsh'
     antidote bundle < '$DOTFILES_DIR/zsh/zsh_plugins_linux.txt'
-" > ~/.zsh_plugins.sh
+" >~/.zsh_plugins.sh
 log_success "Zsh plugins configured"
 
 ###############################################################################
@@ -173,7 +174,7 @@ log_info "Setting up fzf..."
 if [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
     cp /usr/share/doc/fzf/examples/key-bindings.zsh ~/.fzf.zsh
     if [[ -f /usr/share/doc/fzf/examples/completion.zsh ]]; then
-        cat /usr/share/doc/fzf/examples/completion.zsh >> ~/.fzf.zsh
+        cat /usr/share/doc/fzf/examples/completion.zsh >>~/.fzf.zsh
     fi
     log_success "fzf key bindings configured"
 else

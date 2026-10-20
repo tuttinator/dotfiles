@@ -13,20 +13,20 @@ set -euo pipefail
 
 arg=${1:-}
 if [[ -z $arg || $arg =~ ^[0-9]+$ ]]; then
-  url=$(gh pr view ${arg:+"$arg"} --json url --jq .url)
+    url=$(gh pr view ${arg:+"$arg"} --json url --jq .url)
 else
-  url=$arg
+    url=$arg
 fi
 
 if [[ ! $url =~ ^https://github\.com/([^/]+)/([^/]+)/pull/([0-9]+)$ ]]; then
-  echo "Not a GitHub PR URL: $url" >&2
-  exit 2
+    echo "Not a GitHub PR URL: $url" >&2
+    exit 2
 fi
 buffer="*pr-review ${BASH_REMATCH[1]}/${BASH_REMATCH[2]}/${BASH_REMATCH[3]}*"
 
 if ! emacsclient -e t >/dev/null 2>&1; then
-  echo "No Emacs server is running; start Emacs (Doom starts the server) and retry." >&2
-  exit 3
+    echo "No Emacs server is running; start Emacs (Doom starts the server) and retry." >&2
+    exit 3
 fi
 
 # An existing buffer is refreshed in place so a force-pushed PR shows its new head.

@@ -2,10 +2,35 @@
 -- highlighting/folds/indent are switched on per buffer below.
 -- Needs `tree-sitter` CLI (brew "tree-sitter-cli") and a C compiler.
 local parsers = {
-  'bash', 'c', 'css', 'diff', 'dockerfile', 'elixir', 'go', 'gomod', 'html',
-  'javascript', 'jsdoc', 'json', 'lua', 'luadoc', 'markdown', 'markdown_inline',
-  'python', 'query', 'regex', 'ruby', 'rust', 'sql', 'swift', 'toml', 'tsx',
-  'typescript', 'vim', 'vimdoc', 'yaml',
+  'bash',
+  'c',
+  'css',
+  'diff',
+  'dockerfile',
+  'elixir',
+  'go',
+  'gomod',
+  'html',
+  'javascript',
+  'jsdoc',
+  'json',
+  'lua',
+  'luadoc',
+  'markdown',
+  'markdown_inline',
+  'python',
+  'query',
+  'regex',
+  'ruby',
+  'rust',
+  'sql',
+  'swift',
+  'toml',
+  'tsx',
+  'typescript',
+  'vim',
+  'vimdoc',
+  'yaml',
 }
 
 return {
@@ -21,7 +46,9 @@ return {
         group = vim.api.nvim_create_augroup('user_treesitter', { clear = true }),
         callback = function(args)
           -- Only start if a parser is available for this filetype
-          if not pcall(vim.treesitter.start, args.buf) then return end
+          if not pcall(vim.treesitter.start, args.buf) then
+            return
+          end
           vim.wo.foldmethod = 'expr'
           vim.wo.foldexpr = 'v:lua.vim.treesitter.foldexpr()'
           vim.bo[args.buf].indentexpr = "v:lua.require'nvim-treesitter'.indentexpr()"
@@ -44,7 +71,11 @@ return {
       local select = require('nvim-treesitter-textobjects.select')
       local move = require('nvim-treesitter-textobjects.move')
       local objects = {
-        f = 'function', c = 'class', a = 'parameter', l = 'loop', i = 'conditional',
+        f = 'function',
+        c = 'class',
+        a = 'parameter',
+        l = 'loop',
+        i = 'conditional',
       }
       for key, name in pairs(objects) do
         vim.keymap.set({ 'x', 'o' }, 'a' .. key, function()

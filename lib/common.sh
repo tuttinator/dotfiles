@@ -11,10 +11,10 @@ YELLOW='\033[1;33m'
 BLUE='\033[0;34m'
 NC='\033[0m'
 
-log_info()    { echo -e "${BLUE}[INFO]${NC} $1"; }
+log_info() { echo -e "${BLUE}[INFO]${NC} $1"; }
 log_success() { echo -e "${GREEN}[SUCCESS]${NC} $1"; }
 log_warning() { echo -e "${YELLOW}[WARNING]${NC} $1"; }
-log_error()   { echo -e "${RED}[ERROR]${NC} $1"; }
+log_error() { echo -e "${RED}[ERROR]${NC} $1"; }
 
 # ── iTerm2 shell integration ─────────────────────────────────────────────────
 # Reports host, directory and command marks to iTerm2, which its automatic
@@ -53,8 +53,8 @@ backup_and_link() {
 # ── Shared symlinks used by every platform (XDG layout) ──────────────────────
 link_shared_dotfiles() {
     backup_and_link "$DOTFILES_DIR/.config/starship.toml" "$HOME/.config/starship.toml"
-    backup_and_link "$DOTFILES_DIR/.config/git/config"    "$HOME/.config/git/config"
-    backup_and_link "$DOTFILES_DIR/.config/git/ignore"    "$HOME/.config/git/ignore"
+    backup_and_link "$DOTFILES_DIR/.config/git/config" "$HOME/.config/git/config"
+    backup_and_link "$DOTFILES_DIR/.config/git/ignore" "$HOME/.config/git/ignore"
     backup_and_link "$DOTFILES_DIR/.config/tmux/tmux.conf" "$HOME/.config/tmux/tmux.conf"
 
     if [[ -d "$DOTFILES_DIR/.config/nvim" ]]; then
@@ -85,12 +85,12 @@ cleanup_legacy_symlinks() {
 configure_git_identity() {
     log_info "Configuring Git..."
     if [[ -z "$(git config --global user.name)" ]]; then
-        read -p "Enter your full name for Git: " git_name
+        read -r -p "Enter your full name for Git: " git_name
         git config --global user.name "$git_name"
     fi
 
     if [[ -z "$(git config --global user.email)" ]]; then
-        read -p "Enter your email for Git: " git_email
+        read -r -p "Enter your email for Git: " git_email
         git config --global user.email "$git_email"
     fi
 
@@ -120,12 +120,13 @@ generate_ssh_key() {
     # If the user has an ssh config but no standard key, something non-trivial
     # is going on — bail rather than risk clobbering custom host entries.
     if [[ -f "$HOME/.ssh/config" ]]; then
+        # shellcheck disable=SC2088 # literal ~/.ssh/config in user-facing text
         log_warning "~/.ssh/config exists but no standard key found; skipping to avoid overwriting your config"
         log_warning "Generate a key manually with: ssh-keygen -t ed25519 -C <email>"
         return
     fi
 
-    read -p "Enter your email for SSH key: " ssh_email
+    read -r -p "Enter your email for SSH key: " ssh_email
     ssh-keygen -t ed25519 -C "$ssh_email" -f "$HOME/.ssh/id_ed25519" -N ""
 
     eval "$(ssh-agent -s)"
@@ -138,7 +139,7 @@ generate_ssh_key() {
             echo "    UseKeychain yes"
         fi
         echo "    IdentityFile ~/.ssh/id_ed25519"
-    } > "$HOME/.ssh/config"
+    } >"$HOME/.ssh/config"
     chmod 600 "$HOME/.ssh/config"
 
     log_success "SSH key generated"
@@ -146,8 +147,8 @@ generate_ssh_key() {
     cat "$HOME/.ssh/id_ed25519.pub"
     log_warning "Add this key to your GitHub account at https://github.com/settings/keys"
 
-    if command -v pbcopy &> /dev/null; then
-        pbcopy < "$HOME/.ssh/id_ed25519.pub"
+    if command -v pbcopy &>/dev/null; then
+        pbcopy <"$HOME/.ssh/id_ed25519.pub"
         log_success "Public key copied to clipboard"
     fi
 }

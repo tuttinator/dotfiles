@@ -8,7 +8,7 @@
 
 set -e
 
-DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$DOTFILES_DIR/lib/common.sh"
 
 # Detect Pi model
@@ -59,7 +59,7 @@ log_success "Essential packages installed"
 # 1b. Install Tailscale
 ###############################################################################
 log_info "Installing Tailscale..."
-if ! command -v tailscale &> /dev/null; then
+if ! command -v tailscale &>/dev/null; then
     curl -fsSL https://tailscale.com/install.sh | sh
     log_success "Tailscale installed — run 'sudo tailscale up --ssh' to join tailnet"
 else
@@ -70,7 +70,7 @@ fi
 # 2. Install Starship prompt
 ###############################################################################
 log_info "Installing Starship prompt..."
-if ! command -v starship &> /dev/null; then
+if ! command -v starship &>/dev/null; then
     curl -sS https://starship.rs/install.sh | sh -s -- -y
     log_success "Starship installed"
 else
@@ -81,7 +81,7 @@ fi
 # 3. Install mise (version manager)
 ###############################################################################
 log_info "Installing mise..."
-if ! command -v mise &> /dev/null; then
+if ! command -v mise &>/dev/null; then
     curl https://mise.run | sh
     export PATH="$HOME/.local/bin:$PATH"
     log_success "mise installed"
@@ -149,7 +149,7 @@ log_info "Installing Zsh plugins with Antidote..."
 zsh -c "
     source '$ANTIDOTE_HOME/antidote.zsh'
     antidote bundle < '$DOTFILES_DIR/zsh/zsh_plugins_linux.txt'
-" > ~/.zsh_plugins.sh
+" >~/.zsh_plugins.sh
 log_success "Zsh plugins configured"
 
 ###############################################################################
@@ -185,7 +185,7 @@ log_info "Setting up fzf..."
 if [[ -f /usr/share/doc/fzf/examples/key-bindings.zsh ]]; then
     cp /usr/share/doc/fzf/examples/key-bindings.zsh ~/.fzf.zsh
     if [[ -f /usr/share/doc/fzf/examples/completion.zsh ]]; then
-        cat /usr/share/doc/fzf/examples/completion.zsh >> ~/.fzf.zsh
+        cat /usr/share/doc/fzf/examples/completion.zsh >>~/.fzf.zsh
     fi
     log_success "fzf key bindings configured"
 else

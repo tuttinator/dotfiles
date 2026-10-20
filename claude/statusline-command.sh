@@ -1,4 +1,5 @@
 #!/usr/bin/env bash
+# shellcheck disable=SC2034,SC2178 # segment arrays used via namerefs (push/join_segs)
 # Claude Code status line
 # Layout:
 #   LEFT:  dir | model | progress | cost
@@ -64,7 +65,7 @@ ctx_size=$(echo "$input" | jq -r '.context_window.context_window_size // empty')
 cur_input=$(echo "$input" | jq -r '.context_window.current_usage.input_tokens // 0')
 cur_cache_read=$(echo "$input" | jq -r '.context_window.current_usage.cache_read_input_tokens // 0')
 cur_cache_create=$(echo "$input" | jq -r '.context_window.current_usage.cache_creation_input_tokens // 0')
-used_tokens=$(( cur_input + cur_cache_read + cur_cache_create ))
+used_tokens=$((cur_input + cur_cache_read + cur_cache_create))
 
 # Session-cumulative totals (input + output across the whole session).
 total_in=$(echo "$input" | jq -r '.context_window.total_input_tokens // empty')
@@ -74,25 +75,25 @@ bar=""
 bar_width=10
 if [[ -n "$used_pct" ]]; then
     filled=$(echo "$used_pct $bar_width" | awk '{printf "%d", ($1/100)*$2 + 0.5}')
-    empty=$(( bar_width - filled ))
-    for (( i=0; i<filled; i++ )); do bar="${bar}█"; done
-    for (( i=0; i<empty;  i++ )); do bar="${bar}░"; done
+    empty=$((bar_width - filled))
+    for ((i = 0; i < filled; i++)); do bar="${bar}█"; done
+    for ((i = 0; i < empty; i++)); do bar="${bar}░"; done
 fi
 
 pct_str=""
 [[ -n "$used_pct" ]] && pct_str=$(printf "%.0f%%" "$used_pct")
 
 token_str=""
-if (( used_tokens > 0 )) && [[ -n "$ctx_size" ]]; then
+if ((used_tokens > 0)) && [[ -n "$ctx_size" ]]; then
     used_k=$(echo "$used_tokens" | awk '{if($1>=1000) printf "%.1fk", $1/1000; else printf "%d", $1}')
-    total_k=$(echo "$ctx_size"   | awk '{if($1>=1000) printf "%.0fk", $1/1000; else printf "%d", $1}')
+    total_k=$(echo "$ctx_size" | awk '{if($1>=1000) printf "%.0fk", $1/1000; else printf "%d", $1}')
     token_str="${used_k}/${total_k}"
 fi
 
 session_tokens_str=""
 if [[ -n "$total_in" && -n "$total_out" ]]; then
-    sum=$(( total_in + total_out ))
-    if (( sum > 0 )); then
+    sum=$((total_in + total_out))
+    if ((sum > 0)); then
         session_tokens_str=$(echo "$sum" | awk '{
             if ($1>=1000000) printf "Σ%.1fM", $1/1000000;
             else if ($1>=1000) printf "Σ%.0fk", $1/1000;
@@ -134,13 +135,13 @@ fi
 session_str=""
 duration_ms=$(echo "$input" | jq -r '.cost.total_duration_ms // empty')
 if [[ -n "$duration_ms" && "$duration_ms" != "null" ]]; then
-    sec=$(( duration_ms / 1000 ))
-    h=$(( sec / 3600 ))
-    m=$(( (sec % 3600) / 60 ))
-    s=$(( sec % 60 ))
-    if (( h > 0 )); then
+    sec=$((duration_ms / 1000))
+    h=$((sec / 3600))
+    m=$(((sec % 3600) / 60))
+    s=$((sec % 60))
+    if ((h > 0)); then
         session_str=$(printf '%dh%02dm' "$h" "$m")
-    elif (( m > 0 )); then
+    elif ((m > 0)); then
         session_str=$(printf '%dm%02ds' "$m" "$s")
     else
         session_str=$(printf '%ds' "$s")
@@ -158,7 +159,7 @@ if [[ -n "$pr_num" ]] && command -v gh &>/dev/null; then
     if [[ -n "$checks_json" ]]; then
         failing=$(echo "$checks_json" | jq '[.[] | select(.state=="FAILURE" or .state=="ERROR")] | length' 2>/dev/null)
         pending=$(echo "$checks_json" | jq '[.[] | select(.state=="PENDING" or .state=="IN_PROGRESS" or .state=="QUEUED")] | length' 2>/dev/null)
-        total=$(echo "$checks_json"   | jq 'length' 2>/dev/null)
+        total=$(echo "$checks_json" | jq 'length' 2>/dev/null)
         if [[ -n "$total" && "$total" -gt 0 ]]; then
             if [[ "$failing" -gt 0 ]]; then
                 ci_str=" ${RED}✗${failing}${RESET}"
@@ -226,7 +227,7 @@ push RIGHT_RENDERED RIGHT_RAW "${DIM}${clock_str}${RESET}" "$clock_str"
 join_segs() {
     local -n rendered_arr=$1
     local -n raw_arr=$2
-    local mode=$3   # "rendered" or "raw"
+    local mode=$3 # "rendered" or "raw"
     local out=""
     local i
     for i in "${!rendered_arr[@]}"; do
@@ -265,8 +266,8 @@ fi
 
 left_w=$(visible_width "$left_raw")
 right_w=$(visible_width "$right_raw")
-gap=$(( cols - left_w - right_w ))
-(( gap < 1 )) && gap=1
+gap=$((cols - left_w - right_w))
+((gap < 1)) && gap=1
 
 pad=$(printf '%*s' "$gap" '')
 

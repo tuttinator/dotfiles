@@ -7,7 +7,7 @@
 
 set -e
 
-DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$DOTFILES_DIR/lib/common.sh"
 
 log_info "Dotfiles directory: $DOTFILES_DIR"
@@ -19,7 +19,7 @@ log_info "Dotfiles directory: $DOTFILES_DIR"
 # `brew bundle` fail halfway through. We install or update before proceeding.
 ###############################################################################
 log_info "Checking Xcode Command Line Tools..."
-if ! xcode-select -p &> /dev/null; then
+if ! xcode-select -p &>/dev/null; then
     xcode-select --install
     log_warning "Command Line Tools installation started in a GUI dialog."
     log_warning "Complete it, then re-run this script."
@@ -28,8 +28,8 @@ fi
 log_success "Command Line Tools are installed"
 
 log_info "Checking for pending Command Line Tools updates (this can take ~30s)..."
-CLT_UPDATE=$(softwareupdate --list 2>/dev/null \
-    | awk '/Label:.*Command Line Tools/ {sub(/^[[:space:]]*\*[[:space:]]*Label:[[:space:]]*/, ""); print; exit}')
+CLT_UPDATE=$(softwareupdate --list 2>/dev/null |
+    awk '/Label:.*Command Line Tools/ {sub(/^[[:space:]]*\*[[:space:]]*Label:[[:space:]]*/, ""); print; exit}')
 
 if [[ -n "$CLT_UPDATE" ]]; then
     log_warning "Pending CLT update: $CLT_UPDATE"
@@ -44,7 +44,7 @@ fi
 # 2. Install Homebrew
 ###############################################################################
 log_info "Installing Homebrew..."
-if ! command -v brew &> /dev/null; then
+if ! command -v brew &>/dev/null; then
     /bin/bash -c "$(curl -fsSL https://raw.githubusercontent.com/Homebrew/install/HEAD/install.sh)"
     log_success "Homebrew installed successfully"
 else
@@ -64,7 +64,7 @@ eval "$($BREW_PREFIX/bin/brew shellenv)"
 # Add to .zprofile if not already present
 BREW_SHELLENV_LINE="eval \"\$($BREW_PREFIX/bin/brew shellenv)\""
 if ! grep -q "$BREW_SHELLENV_LINE" ~/.zprofile 2>/dev/null; then
-    echo "$BREW_SHELLENV_LINE" >> ~/.zprofile
+    echo "$BREW_SHELLENV_LINE" >>~/.zprofile
     log_success "Added Homebrew to .zprofile"
 else
     log_success "Homebrew already configured in .zprofile"
@@ -105,7 +105,7 @@ fi
 
 # Install docker/tap/sbx separately — brew bundle fails to resolve it from the
 # Brewfile. See https://docs.docker.com/ai/sandboxes/
-if ! brew list sbx &> /dev/null && ! brew list --cask sbx &> /dev/null; then
+if ! brew list sbx &>/dev/null && ! brew list --cask sbx &>/dev/null; then
     log_info "Installing sbx from docker/tap..."
     brew install docker/tap/sbx
     log_success "sbx installed"
@@ -180,14 +180,14 @@ install_native_app() {
         ditto -x -k "$file" "$tmp/x"
         app="$(find "$tmp/x" -maxdepth 2 -name '*.app' -print -quit)"
     else
-        mount="$(hdiutil attach -nobrowse -readonly -noautoopen "$file" 2>/dev/null \
-            | awk -F'\t' '/\/Volumes\// {print $NF; exit}')"
+        mount="$(hdiutil attach -nobrowse -readonly -noautoopen "$file" 2>/dev/null |
+            awk -F'\t' '/\/Volumes\// {print $NF; exit}')"
         app="$(find "$mount" -maxdepth 1 -name '*.app' -print -quit 2>/dev/null || true)"
     fi
 
-    if [[ -z "$app" ]] \
-        || ! codesign --verify --deep --strict "$app" 2>/dev/null \
-        || [[ "$(codesign -dv "$app" 2>&1)" != *"TeamIdentifier=$team"* ]]; then
+    if [[ -z "$app" ]] ||
+        ! codesign --verify --deep --strict "$app" 2>/dev/null ||
+        [[ "$(codesign -dv "$app" 2>&1)" != *"TeamIdentifier=$team"* ]]; then
         [[ -n "$mount" ]] && hdiutil detach -quiet "$mount"
         rm -rf "$tmp"
         log_error "$name app signature could not be verified"
@@ -201,21 +201,33 @@ install_native_app() {
 }
 
 case "$(uname -m)" in
-    arm64) SLACK_ARCH="arm64"; ZOOM_ARCH="arm64"; FIGMA_ARCH="mac-arm"
-           ORBSTACK_ARCH="arm64"; DBEAVER_ARCH="aarch64"; VLC_ARCH="arm64"
-           ANDROID_STUDIO_ARCH="mac_arm" ;;
-    *)     SLACK_ARCH="x64";   ZOOM_ARCH="x86";   FIGMA_ARCH="mac"
-           ORBSTACK_ARCH="amd64"; DBEAVER_ARCH="x86_64"; VLC_ARCH="intel64"
-           ANDROID_STUDIO_ARCH="mac" ;;
+    arm64)
+        SLACK_ARCH="arm64"
+        ZOOM_ARCH="arm64"
+        FIGMA_ARCH="mac-arm"
+        ORBSTACK_ARCH="arm64"
+        DBEAVER_ARCH="aarch64"
+        VLC_ARCH="arm64"
+        ANDROID_STUDIO_ARCH="mac_arm"
+        ;;
+    *)
+        SLACK_ARCH="x64"
+        ZOOM_ARCH="x86"
+        FIGMA_ARCH="mac"
+        ORBSTACK_ARCH="amd64"
+        DBEAVER_ARCH="x86_64"
+        VLC_ARCH="intel64"
+        ANDROID_STUDIO_ARCH="mac"
+        ;;
 esac
 
 # Claude's download page sits behind a bot check; its updater feed does not.
-CLAUDE_URL="$(curl -fsSL https://downloads.claude.ai/releases/darwin/universal/RELEASES.json \
-    | jq -r '.releases[-1].updateTo.url')"
+CLAUDE_URL="$(curl -fsSL https://downloads.claude.ai/releases/darwin/universal/RELEASES.json |
+    jq -r '.releases[-1].updateTo.url')"
 
 # VLC has no "latest" link; its Sparkle feed lists releases oldest first.
-VLC_URL="$(curl -fsSL "https://update.videolan.org/vlc/sparkle/vlc-$VLC_ARCH.xml" \
-    | grep -o 'url="[^"]*\.dmg"' | tail -1 | cut -d'"' -f2 | sed 's|^http:|https:|')"
+VLC_URL="$(curl -fsSL "https://update.videolan.org/vlc/sparkle/vlc-$VLC_ARCH.xml" |
+    grep -o 'url="[^"]*\.dmg"' | tail -1 | cut -d'"' -f2 | sed 's|^http:|https:|')"
 
 # Slack's PKG installs its privileged updater alongside the app.
 install_native_app "Slack" slack BQR82RBBHL \
@@ -250,11 +262,11 @@ install_native_app "Viscosity" viscosity 34XR7GXFPX \
 install_native_app "VLC" vlc 75GAHG3SZQ "$VLC_URL"
 
 if [[ "$PROFILE" == full ]]; then
-    POSITRON_URL="$(curl -fsSL https://cdn.posit.co/positron/releases/mac/universal/releases.json \
-        | jq -r '.url')"
+    POSITRON_URL="$(curl -fsSL https://cdn.posit.co/positron/releases/mac/universal/releases.json |
+        jq -r '.url')"
     # Android Studio's links carry the version, so take the current one from its page
-    ANDROID_STUDIO_URL="$(curl -fsSL https://developer.android.com/studio \
-        | grep -o "https://[^\"]*android-studio-[^\"]*-$ANDROID_STUDIO_ARCH\.dmg" | head -1)"
+    ANDROID_STUDIO_URL="$(curl -fsSL https://developer.android.com/studio |
+        grep -o "https://[^\"]*android-studio-[^\"]*-$ANDROID_STUDIO_ARCH\.dmg" | head -1)"
 
     install_native_app "Positron" positron FYF2F5GFX4 "$POSITRON_URL"
     install_native_app "Ollama" ollama-app 3MU9H2V9Y9 \
@@ -274,7 +286,10 @@ fi
 # 3c. Install Codex CLI and Muse Code
 ###############################################################################
 log_info "Installing Codex CLI from the official installer..."
-if ! (set -o pipefail; curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh); then
+if ! (
+    set -o pipefail
+    curl -fsSL https://chatgpt.com/codex/install.sh | CODEX_NON_INTERACTIVE=1 sh
+); then
     log_error "Codex CLI installation failed"
     exit 1
 fi
@@ -284,7 +299,10 @@ log_success "Codex CLI installed"
 # line to ~/.zshrc (a symlink into this repo); .zshrc already has ~/.local/bin.
 # Still experimental, so a failure here shouldn't stop the rest of bootstrap.
 log_info "Installing Muse Code from Meta's installer..."
-if (set -o pipefail; curl -fsSL https://dev.meta.ai/install.sh | MUSE_NO_MODIFY_PATH=1 bash); then
+if (
+    set -o pipefail
+    curl -fsSL https://dev.meta.ai/install.sh | MUSE_NO_MODIFY_PATH=1 bash
+); then
     log_success "Muse Code installed"
 else
     log_warning "Muse Code installation failed; continuing"
@@ -329,7 +347,7 @@ backup_and_link "$DOTFILES_DIR/iterm2/DynamicProfiles/ssh.json" "$ITERM_PROFILES
 # it's closed; otherwise pick Main under Settings > Profiles > Other Actions
 ITERM_MAIN_GUID="$(jq -r '.Profiles[0].Guid' "$DOTFILES_DIR/iterm2/DynamicProfiles/main.json")"
 if [[ "$(defaults read com.googlecode.iterm2 "Default Bookmark Guid" 2>/dev/null)" != "$ITERM_MAIN_GUID" ]]; then
-    if ps -axo comm= | grep -q '/iTerm.app/Contents/MacOS/iTerm2$'; then
+    if pgrep -q -f '/iTerm.app/Contents/MacOS/iTerm2'; then
         log_warning "iTerm is running: set the Main profile as default in Settings > Profiles"
     else
         defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string "$ITERM_MAIN_GUID"
@@ -361,7 +379,7 @@ log_info "Installing and bundling Zsh plugins..."
 zsh -c "
     source '$ANTIDOTE_PATH'
     antidote bundle < '$DOTFILES_DIR/zsh/zsh_plugins.txt'
-" > ~/.zsh_plugins.sh
+" >~/.zsh_plugins.sh
 log_success "Zsh plugins configured with Antidote"
 
 ###############################################################################
@@ -372,7 +390,7 @@ configure_git_identity
 ###############################################################################
 # 8. Generate SSH Keys
 ###############################################################################
-generate_ssh_key true   # true = enable UseKeychain on macOS
+generate_ssh_key true # true = enable UseKeychain on macOS
 
 ###############################################################################
 # 9. Setup macOS defaults
@@ -420,7 +438,7 @@ log_success "Essential services started"
 log_info "Setting up additional tools..."
 
 # Setup mise (formerly rtx) for version management
-if command -v mise &> /dev/null; then
+if command -v mise &>/dev/null; then
     mise use --global node@lts
     mise use --global python@latest
     log_success "mise configured with Node.js and Python"
@@ -434,7 +452,7 @@ elif [[ -d /usr/local/opt/fzf ]]; then
 fi
 
 # Doom Emacs: framework in ~/.config/emacs, config linked from dotfiles/.config/doom
-if command -v emacs &> /dev/null; then
+if command -v emacs &>/dev/null; then
     if [[ ! -d "$HOME/.config/emacs" ]]; then
         log_info "Installing Doom Emacs..."
         git clone --depth 1 https://github.com/doomemacs/core "$HOME/.config/emacs"
@@ -529,7 +547,7 @@ log_success "Codex git attribution disabled"
 # Setup VS Code 'code' command in PATH
 log_info "Setting up VS Code 'code' command..."
 if [[ -d "/Applications/Visual Studio Code.app" ]]; then
-    if ! command -v code &> /dev/null; then
+    if ! command -v code &>/dev/null; then
         sudo ln -sf "/Applications/Visual Studio Code.app/Contents/Resources/app/bin/code" /usr/local/bin/code
         log_success "VS Code 'code' command installed"
     else
@@ -545,7 +563,7 @@ fi
 log_info "Setting up Positron 'positron' command..."
 POSITRON_CLI="/Applications/Positron.app/Contents/Resources/app/bin/code"
 if [[ -x "$POSITRON_CLI" ]]; then
-    if ! command -v positron &> /dev/null; then
+    if ! command -v positron &>/dev/null; then
         mkdir -p "$HOME/.local/bin"
         ln -sf "$POSITRON_CLI" "$HOME/.local/bin/positron"
         log_success "Positron 'positron' command installed"

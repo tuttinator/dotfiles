@@ -31,7 +31,7 @@
 
 set -euo pipefail
 
-DOTFILES_DIR="$( cd "$( dirname "${BASH_SOURCE[0]}" )" &> /dev/null && pwd )"
+DOTFILES_DIR="$(cd "$(dirname "${BASH_SOURCE[0]}")" &>/dev/null && pwd)"
 source "$DOTFILES_DIR/lib/common.sh"
 
 CONFIG_FILE="$DOTFILES_DIR/dotfiles.local.toml"
@@ -64,10 +64,17 @@ Prerequisites:
 EOF
 }
 
-if [[ $# -lt 1 ]]; then usage; exit 1; fi
-if [[ "$1" == "-h" || "$1" == "--help" ]]; then usage; exit 0; fi
+if [[ $# -lt 1 ]]; then
+    usage
+    exit 1
+fi
+if [[ "$1" == "-h" || "$1" == "--help" ]]; then
+    usage
+    exit 0
+fi
 
-HOSTNAME_SUFFIX="$1"; shift
+HOSTNAME_SUFFIX="$1"
+shift
 FLASH_TARGET=""
 while [[ $# -gt 0 ]]; do
     case "$1" in
@@ -133,16 +140,17 @@ PY
 
 PI_JSON="$(read_pi_config)"
 HOSTNAME_PREFIX=$(echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["hostname_prefix"])')
-PI_USER=$(        echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["username"])')
-PI_PASSWORD=$(    echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["password"])')
-WIFI_SSID=$(      echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["wifi_ssid"])')
-WIFI_PSK=$(       echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["wifi_psk"])')
-WIFI_COUNTRY=$(   echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["wifi_country"])')
-TIMEZONE=$(       echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["timezone"])')
-LOCALE=$(         echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["locale"])')
-TS_AUTHKEY=$(     echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["ts_authkey"])')
-TS_TAGS=$(        echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["ts_tags"])')
-TS_SSH=$(         echo "$PI_JSON" | python3 -c 'import sys,json;print("true" if json.load(sys.stdin)["ts_ssh"] else "false")')
+PI_USER=$(echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["username"])')
+PI_PASSWORD=$(echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["password"])')
+WIFI_SSID=$(echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["wifi_ssid"])')
+WIFI_PSK=$(echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["wifi_psk"])')
+WIFI_COUNTRY=$(echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["wifi_country"])')
+TIMEZONE=$(echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["timezone"])')
+# NOTE: [pi].locale is parsed in read_pi_config but never applied — Pi OS
+# first-boot (custom.toml) has no locale field, only keymap/timezone.
+TS_AUTHKEY=$(echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["ts_authkey"])')
+TS_TAGS=$(echo "$PI_JSON" | python3 -c 'import sys,json;print(json.load(sys.stdin)["ts_tags"])')
+TS_SSH=$(echo "$PI_JSON" | python3 -c 'import sys,json;print("true" if json.load(sys.stdin)["ts_ssh"] else "false")')
 
 HOSTNAME="${HOSTNAME_PREFIX}-${HOSTNAME_SUFFIX}"
 log_success "Config loaded. Target hostname: $HOSTNAME"
@@ -160,7 +168,7 @@ trap 'rm -f "$SSH_AUTHORIZED_KEYS"' EXIT
 for key_file in "$HOME"/.ssh/*.pub; do
     [[ -f "$key_file" ]] || continue
     if grep -Eq '^(ssh-ed25519|ssh-rsa|ecdsa-sha2-nistp(256|384|521)|sk-ssh-ed25519@openssh.com|sk-ecdsa-sha2-nistp256@openssh.com) ' "$key_file"; then
-        cat "$key_file" >> "$SSH_AUTHORIZED_KEYS"
+        cat "$key_file" >>"$SSH_AUTHORIZED_KEYS"
     else
         log_warning "Skipping unrecognized SSH public key: $key_file"
     fi
@@ -171,10 +179,11 @@ if [[ ! -s "$SSH_AUTHORIZED_KEYS" ]]; then
     log_error "Create one first, e.g. ssh-keygen -t ed25519 -C \"you@example.com\""
     exit 1
 fi
-KEY_COUNT=$(wc -l < "$SSH_AUTHORIZED_KEYS" | tr -d ' ')
+KEY_COUNT=$(wc -l <"$SSH_AUTHORIZED_KEYS" | tr -d ' ')
 log_success "Collected $KEY_COUNT SSH public key(s) for the Pi user's authorized_keys"
 
-AUTHORIZED_KEYS_TOML=$(python3 - "$SSH_AUTHORIZED_KEYS" <<'PY'
+AUTHORIZED_KEYS_TOML=$(
+    python3 - "$SSH_AUTHORIZED_KEYS" <<'PY'
 import json
 import pathlib
 import sys
@@ -211,7 +220,10 @@ if [[ -n "$FLASH_TARGET" ]]; then
     fi
 
     log_warning "About to ERASE and flash Raspberry Pi OS Lite to: $FLASH_TARGET"
-    diskutil list "$FLASH_TARGET" || { log_error "diskutil can't see $FLASH_TARGET"; exit 1; }
+    diskutil list "$FLASH_TARGET" || {
+        log_error "diskutil can't see $FLASH_TARGET"
+        exit 1
+    }
     read -rp "Type the device path again to confirm ($FLASH_TARGET): " CONFIRM
     if [[ "$CONFIRM" != "$FLASH_TARGET" ]]; then
         log_error "Confirmation mismatch, aborting."
@@ -269,7 +281,8 @@ WIFI_PSK_Q=$(json_quote "$WIFI_PSK")
 WIFI_COUNTRY_Q=$(json_quote "$WIFI_COUNTRY")
 TIMEZONE_Q=$(json_quote "$TIMEZONE")
 
-AUTHORIZED_KEYS_YAML_INLINE=$(python3 - "$SSH_AUTHORIZED_KEYS" <<'PY'
+AUTHORIZED_KEYS_YAML_INLINE=$(
+    python3 - "$SSH_AUTHORIZED_KEYS" <<'PY'
 import json
 import pathlib
 import sys
@@ -289,7 +302,7 @@ PY
 # Schema: https://www.raspberrypi.com/documentation/computers/configuration.html#configuration-on-first-boot
 ###############################################################################
 log_info "Writing $BOOT_MOUNT/custom.toml..."
-cat > "$BOOT_MOUNT/custom.toml" <<EOF
+cat >"$BOOT_MOUNT/custom.toml" <<EOF
 # Raspberry Pi OS first-boot config. Generated by bootstrap-pi-sd.sh.
 config_version = 1
 
@@ -323,9 +336,9 @@ EOF
 # network-config templates on bootfs)
 ###############################################################################
 if [[ -f "$BOOT_MOUNT/user-data" || -f "$BOOT_MOUNT/network-config" ]]; then
-        log_info "Writing cloud-init compatible user-data and network-config..."
+    log_info "Writing cloud-init compatible user-data and network-config..."
 
-        cat > "$BOOT_MOUNT/user-data" <<EOF
+    cat >"$BOOT_MOUNT/user-data" <<EOF
 #cloud-config
 hostname: $HOSTNAME_Q
 users:
@@ -336,7 +349,7 @@ disable_root: true
 chpasswd: {expire: false}
 EOF
 
-        cat > "$BOOT_MOUNT/network-config" <<EOF
+    cat >"$BOOT_MOUNT/network-config" <<EOF
 network:
     version: 2
     ethernets:
@@ -358,8 +371,8 @@ fi
 # Legacy compatibility (older Raspberry Pi OS images)
 ###############################################################################
 log_info "Writing legacy compatibility files (userconf.txt, wpa_supplicant.conf, ssh)..."
-printf '%s:%s\n' "$PI_USER" "$PI_PASSWORD_HASH" > "$BOOT_MOUNT/userconf.txt"
-cat > "$BOOT_MOUNT/wpa_supplicant.conf" <<EOF
+printf '%s:%s\n' "$PI_USER" "$PI_PASSWORD_HASH" >"$BOOT_MOUNT/userconf.txt"
+cat >"$BOOT_MOUNT/wpa_supplicant.conf" <<EOF
 country=$WIFI_COUNTRY
 ctrl_interface=DIR=/var/run/wpa_supplicant GROUP=netdev
 update_config=1
@@ -382,9 +395,9 @@ log_info "Writing $BOOT_MOUNT/firstrun.sh..."
 # Build tailscale up flags
 TS_UP_FLAGS="--authkey=$TS_AUTHKEY --hostname=$HOSTNAME"
 [[ "$TS_SSH" == "true" ]] && TS_UP_FLAGS="$TS_UP_FLAGS --ssh"
-[[ -n "$TS_TAGS"      ]] && TS_UP_FLAGS="$TS_UP_FLAGS --advertise-tags=$TS_TAGS"
+[[ -n "$TS_TAGS" ]] && TS_UP_FLAGS="$TS_UP_FLAGS --advertise-tags=$TS_TAGS"
 
-cat > "$BOOT_MOUNT/firstrun.sh" <<EOF
+cat >"$BOOT_MOUNT/firstrun.sh" <<EOF
 #!/bin/bash
 # Runs once on first boot. Log to /boot/firmware/firstrun.log so you can inspect
 # it over SSH or by pulling the card afterwards.
@@ -505,10 +518,10 @@ if [[ -f "$CMDLINE" ]]; then
     log_info "Patching cmdline.txt to run firstrun.sh on first boot..."
     # Strip any previous systemd.run hooks, then append ours. cmdline.txt must
     # stay on a single line.
-    CURRENT=$(tr -d '\n' < "$CMDLINE")
+    CURRENT=$(tr -d '\n' <"$CMDLINE")
     CURRENT=$(echo "$CURRENT" | sed -E 's| systemd\.run=[^ ]+||g; s| systemd\.run_success_action=[^ ]+||g; s| systemd\.unit=[^ ]+||g')
     HOOK=' systemd.run=/boot/firmware/firstrun.sh systemd.run_success_action=reboot systemd.unit=kernel-command-line.target'
-    echo "${CURRENT}${HOOK}" > "$CMDLINE"
+    echo "${CURRENT}${HOOK}" >"$CMDLINE"
 else
     log_warning "cmdline.txt not found at $CMDLINE — firstrun.sh won't auto-execute."
 fi
