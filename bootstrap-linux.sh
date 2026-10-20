@@ -55,6 +55,14 @@ sudo apt-get install -y \
 
 log_success "Essential packages installed"
 
+# delta is git's pager in .config/git/config. Packaged as git-delta from
+# Debian 12 / Ubuntu 23.04; older releases lack it, so don't fail on it.
+if sudo apt-get install -y git-delta; then
+    log_success "delta installed"
+else
+    log_warning "git-delta isn't packaged here; install delta from https://github.com/dandavison/delta/releases"
+fi
+
 ###############################################################################
 # 1b. Install Tailscale
 ###############################################################################
