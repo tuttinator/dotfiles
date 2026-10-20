@@ -61,6 +61,22 @@
   ;; Let Claude use xref, project, imenu and tree-sitter via MCP tools
   (claude-code-ide-emacs-tools-setup))
 
+;;; Codex, Gemini and friends (agent-shell over ACP)
+
+;; Each agent logs in through its own CLI (codex login, gemini); agent-shell
+;; reuses that. Codex runs through the codex-acp adapter from the Brewfile.
+(use-package! agent-shell
+  :commands (agent-shell agent-shell-openai-start-codex agent-shell-google-start-gemini)
+  :init
+  (map! :leader
+        (:prefix "a"
+         :desc "Codex"              "x" #'agent-shell-openai-start-codex
+         :desc "Gemini"             "g" #'agent-shell-google-start-gemini
+         :desc "Pick an agent"      "A" #'agent-shell))
+  :config
+  ;; agent-shell still defaults to the deprecated --experimental-acp
+  (setq agent-shell-google-gemini-acp-command '("gemini" "--acp")))
+
 ;;; GitHub PR review
 
 ;; Forge and pr-review authenticate through ghub, which wants a token in
@@ -137,6 +153,12 @@
          (mapcar #'expand-file-name (projectile-relevant-known-projects)))
         (read-directory-name (format "Local clone of %s/%s: " owner repo))))
 
+  (defun +pr-review--agent-prompt (owner repo number)
+    "Opening message telling a coding agent which PR is under review."
+    (format "I'm reviewing https://github.com/%s/%s/pull/%s. \
+Read it with `gh pr view %s` and `gh pr diff %s`, then wait for my questions."
+            owner repo number number number))
+
   (defvar claude-code-ide-cli-extra-flags)  ; let-bound below, so make it dynamic
 
   (defun +pr-review/claude ()
@@ -146,13 +168,25 @@
     (pcase-let* ((`(,owner ,repo ,number) pr-review--pr-path)
                  (default-directory (file-name-as-directory
                                      (+pr-review--local-clone owner repo)))
-                 (prompt (format "I'm reviewing https://github.com/%s/%s/pull/%s. \
-Read it with `gh pr view %s` and `gh pr diff %s`, then wait for my questions."
-                                 owner repo number number number))
+                 (prompt (+pr-review--agent-prompt owner repo number))
                  (claude-code-ide-cli-extra-flags
                   (string-trim (concat claude-code-ide-cli-extra-flags " "
                                        (shell-quote-argument prompt)))))
       (claude-code-ide)))
+
+  (defun +pr-review/codex ()
+    "Start Codex (agent-shell) in this PR's local clone, told which PR is under review."
+    (interactive)
+    (require 'agent-shell)
+    (pcase-let* ((`(,owner ,repo ,number) pr-review--pr-path)
+                 (dir (file-name-as-directory (+pr-review--local-clone owner repo)))
+                 ;; Always a fresh session: an old one would be about another PR
+                 (shell (agent-shell--start :config (agent-shell-openai-make-codex-config)
+                                            :session-strategy 'new
+                                            :cwd dir)))
+      ;; Queued until the session is ready
+      (agent-shell-insert :text (+pr-review--agent-prompt owner repo number)
+                          :submit t :shell-buffer shell)))
 
   ;; GitHub-style "files changed" sidebar, grouped by directory
 
@@ -236,7 +270,8 @@ Read it with `gh pr view %s` and `gh pr diff %s`, then wait for my questions."
         :localleader
         :desc "Files sidebar" "f" #'+pr-review/files-sidebar
         :desc "Go to file"    "g" #'pr-review-goto-file
-        :desc "Ask Claude"    "c" #'+pr-review/claude))
+        :desc "Ask Claude"    "c" #'+pr-review/claude
+        :desc "Ask Codex"     "x" #'+pr-review/codex))
 
 ;; Let emacsclient (and the `prr' shell function) talk to this Emacs. Only the
 ;; first Emacs started gets the server; later ones skip it.

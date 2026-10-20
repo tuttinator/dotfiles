@@ -33,6 +33,7 @@ brew "awscli"
 brew "biome"
 brew "btop"
 brew "cocoapods"
+brew "codex-acp"    # ACP adapter so agent-shell (Doom) can drive Codex
 brew "dotnet"
 brew "eksctl"
 brew "erlang" if full      # erlang+elixir: mac-mini only
@@ -65,6 +66,7 @@ brew "sesh"         # tmux session switcher (prefix + T)
 brew "zoxide"       # smart cd
 brew "tree"
 brew "htop"
+brew "gemini-cli"   # agent-shell talks to it over ACP
 brew "gh"
 
 brew "git"

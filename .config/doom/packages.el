@@ -8,6 +8,11 @@
 (package! claude-code-ide
   :recipe (:host github :repo "manzaltu/claude-code-ide.el"))
 
+;; Codex, Gemini and other agents in native Emacs buffers, over ACP
+(package! shell-maker)
+(package! acp)
+(package! agent-shell)
+
 ;; Matches nvim, tmux and the iTerm2 profile
 (package! catppuccin-theme)
 
