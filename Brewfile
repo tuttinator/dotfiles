@@ -65,6 +65,12 @@ brew "mole"         # `mo clean` — cache/junk cleaner (whitelist lives in dotf
 brew "ripgrep"      # fast grep (rg)
 brew "sesh"         # tmux session switcher (prefix + T)
 brew "zoxide"       # smart cd
+brew "watchexec"    # re-run a command when files change
+brew "hyperfine"    # command benchmarking (e.g. shell startup)
+brew "sd"           # find-and-replace without sed's regex escaping
+brew "dust"         # du as a sorted tree
+brew "duf"          # df as a readable table
+brew "tealdeer"     # fast tldr pages
 brew "tree"
 brew "htop"
 brew "gemini-cli"   # agent-shell talks to it over ACP
