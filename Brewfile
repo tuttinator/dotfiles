@@ -125,8 +125,15 @@ brew "kenn-io/tap/roborev"
 # CLIs, fonts and Emacs, which nothing else keeps up to date.
 cask "android-platform-tools"
 cask "d12frosted/emacs-plus/emacs-plus-app"  # prebuilt Emacs 31 + native-comp; config is Doom
+cask "font-commit-mono-nerd-font"
+cask "font-fira-code-nerd-font"
+cask "font-geist-mono-nerd-font"
 cask "font-hack-nerd-font"
+cask "font-iosevka-term-nerd-font"
+cask "font-jetbrains-mono-nerd-font"  # iTerm's font (iterm2/DynamicProfiles/main.json)
 cask "font-jetbrains-mono"
+cask "font-maple-mono-nf"
+cask "font-monaspace-nerd-font"  # "Monaspice" in font menus
 cask "font-newsreader"
 cask "font-symbols-only-nerd-font"  # icons for Doom (nerd-icons)
 cask "gcloud-cli"

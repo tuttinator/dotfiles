@@ -307,10 +307,25 @@ if [[ -f "$DOTFILES_DIR/rectangle/RectangleConfig.json" ]]; then
     backup_and_link "$DOTFILES_DIR/rectangle/RectangleConfig.json" "$HOME/Library/Preferences/com.knollsoft.Rectangle.plist"
 fi
 
-# iTerm2 SSH profile; its automatic profile switching rules colour the tab
-# whenever ssh/mosh is running or the shell reports a Tailscale host
-backup_and_link "$DOTFILES_DIR/iterm2/DynamicProfiles/ssh.json" \
-    "$HOME/Library/Application Support/iTerm2/DynamicProfiles/ssh.json"
+# iTerm2 profiles. Main (Tomorrow Night, JetBrains Mono Nerd Font, Option as
+# Meta) is the default; SSH inherits from it, and its automatic profile
+# switching rules colour the tab whenever ssh/mosh is running or the shell
+# reports a Tailscale host
+ITERM_PROFILES="$HOME/Library/Application Support/iTerm2/DynamicProfiles"
+mkdir -p "$ITERM_PROFILES"
+backup_and_link "$DOTFILES_DIR/iterm2/DynamicProfiles/main.json" "$ITERM_PROFILES/main.json"
+backup_and_link "$DOTFILES_DIR/iterm2/DynamicProfiles/ssh.json" "$ITERM_PROFILES/ssh.json"
+# iTerm writes its preferences back on quit, so only set the default while
+# it's closed; otherwise pick Main under Settings > Profiles > Other Actions
+ITERM_MAIN_GUID="$(jq -r '.Profiles[0].Guid' "$DOTFILES_DIR/iterm2/DynamicProfiles/main.json")"
+if [[ "$(defaults read com.googlecode.iterm2 "Default Bookmark Guid" 2>/dev/null)" != "$ITERM_MAIN_GUID" ]]; then
+    if ps -axo comm= | grep -q '/iTerm.app/Contents/MacOS/iTerm2$'; then
+        log_warning "iTerm is running: set the Main profile as default in Settings > Profiles"
+    else
+        defaults write com.googlecode.iterm2 "Default Bookmark Guid" -string "$ITERM_MAIN_GUID"
+        log_success "iTerm default profile set to Main"
+    fi
+fi
 install_iterm2_shell_integration
 
 # Migration: remove legacy home-dir symlinks now that XDG paths exist
