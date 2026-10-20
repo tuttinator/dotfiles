@@ -11,6 +11,7 @@
        doom
        dashboard
        hl-todo
+       ligatures            ; font ligatures via HarfBuzz composition
        indent-guides
        modeline
        nav-flash

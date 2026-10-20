@@ -5,8 +5,9 @@
 ;;; Look
 
 ;; Catppuccin (mocha) is still installed to match nvim/tmux; SPC h t switches
+;; Font matches the iTerm Main profile; ligatures come from :ui ligatures
 (setq doom-theme 'doom-tomorrow-night
-      doom-font (font-spec :family "JetBrains Mono" :size 14)
+      doom-font (font-spec :family "GeistMono Nerd Font Mono" :size 14)
       display-line-numbers-type t)
 
 ;;; Behaviour carried over from nvim
