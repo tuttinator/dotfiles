@@ -91,8 +91,13 @@ fi
 ###############################################################################
 log_info "Setting up Node.js and Claude Code..."
 eval "$(mise activate bash)"
-mise use --global node@lts
-log_success "Node.js LTS installed via mise"
+
+# Versions are pinned in .config/mise/config.toml; link it before installing
+# (the full symlink pass happens later in section 8).
+mkdir -p "$HOME/.config/mise"
+ln -sf "$DOTFILES_DIR/.config/mise/config.toml" "$HOME/.config/mise/config.toml"
+mise install --yes node
+log_success "Node.js installed via mise (pinned in .config/mise/config.toml)"
 
 log_info "Installing Claude Code via native installer..."
 curl -fsSL https://claude.ai/install.sh | bash

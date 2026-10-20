@@ -13,4 +13,4 @@ pre-commit:
       glob: "*.lua"
       run: stylua --check {staged_files}
     gitleaks:
-      run: gitleaks protect --staged --redact
+      run: gitleaks git --pre-commit --staged --redact
