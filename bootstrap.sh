@@ -343,6 +343,9 @@ ITERM_PROFILES="$HOME/Library/Application Support/iTerm2/DynamicProfiles"
 mkdir -p "$ITERM_PROFILES"
 backup_and_link "$DOTFILES_DIR/iterm2/DynamicProfiles/main.json" "$ITERM_PROFILES/main.json"
 backup_and_link "$DOTFILES_DIR/iterm2/DynamicProfiles/ssh.json" "$ITERM_PROFILES/ssh.json"
+
+# aichat (Alt-E in zsh); .zshrc sets AICHAT_CONFIG_DIR to this path
+backup_and_link "$DOTFILES_DIR/.config/aichat/config.yaml" "$HOME/.config/aichat/config.yaml"
 # iTerm writes its preferences back on quit, so only set the default while
 # it's closed; otherwise pick Main under Settings > Profiles > Other Actions
 ITERM_MAIN_GUID="$(jq -r '.Profiles[0].Guid' "$DOTFILES_DIR/iterm2/DynamicProfiles/main.json")"
@@ -443,6 +446,15 @@ log_info "Setting up additional tools..."
 if command -v mise &>/dev/null; then
     mise install --yes
     log_success "mise tools installed from .config/mise/config.toml"
+fi
+
+# llm: `llm cmd "..."` drafts a command to edit before running. Plugins live in
+# llm's own environment, so they're installed here rather than in the Brewfile.
+# The key is set once by hand: `llm keys set openai` (aichat reuses it).
+if command -v llm &>/dev/null; then
+    llm install llm-cmd
+    llm models default gpt-6-luna
+    log_success "llm configured with llm-cmd and gpt-6-luna"
 fi
 
 # Setup fzf key bindings and fuzzy completion

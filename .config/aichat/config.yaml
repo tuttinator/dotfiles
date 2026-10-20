@@ -1,0 +1,9 @@
+# aichat — Alt-E in zsh turns the typed line into a command (`aichat -e`).
+# Linked to ~/.config/aichat; .zshrc points AICHAT_CONFIG_DIR there. The API
+# key isn't stored here: .zshrc passes the one saved with `llm keys set openai`.
+model: openai:gpt-6-luna
+clients:
+  - type: openai
+    # aichat 0.30's built-in list predates GPT-6, so declare the model
+    models:
+      - name: gpt-6-luna

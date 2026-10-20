@@ -115,6 +115,50 @@ _atuin_smart_up() {
 zle -N _atuin_smart_up
 bindkey '^[[A' _atuin_smart_up   # Up arrow
 bindkey '^[OA' _atuin_smart_up   # Up arrow (application mode)
+
+# Alt-E: turn the typed line ("find logs over 1GB") into a command with aichat.
+# Based on aichat's shell integration; the OpenAI key comes from llm's store.
+export AICHAT_CONFIG_DIR="$HOME/.config/aichat"
+_aichat_zsh() {
+  [[ -n "$BUFFER" ]] || return
+  local _old=$BUFFER
+  BUFFER+="⌛"
+  zle -I && zle redisplay
+  BUFFER=$(OPENAI_API_KEY=$(llm keys get openai 2>/dev/null) aichat -e "$_old")
+  [[ -n "$BUFFER" ]] || BUFFER=$_old
+  zle end-of-line
+}
+zle -N _aichat_zsh
+bindkey '^[e' _aichat_zsh
+
+# Typing a "# comment" and pausing for a second shows the ⌥E hint under the
+# prompt. One `sleep` timer at a time, and only while the line is a comment.
+zmodload zsh/datetime
+typeset -g _ai_hint_fd= _ai_hint_buf= _ai_hint_last=0
+_ai_hint_timer() {
+  exec {_ai_hint_fd}< <(sleep $1)
+  zle -F -w $_ai_hint_fd _ai_hint_fire
+}
+_ai_hint_arm() {
+  [[ $BUFFER == $_ai_hint_buf ]] && return   # a redraw, not an edit
+  _ai_hint_buf=$BUFFER _ai_hint_last=$EPOCHREALTIME
+  [[ $BUFFER =~ '^[[:space:]]*#' && -z $_ai_hint_fd ]] && _ai_hint_timer 1
+}
+_ai_hint_fire() {
+  local fd=$1
+  zle -F $fd; exec {fd}<&-; _ai_hint_fd=
+  [[ $BUFFER =~ '^[[:space:]]*#' ]] || return
+  local idle=$(( EPOCHREALTIME - _ai_hint_last ))
+  if (( idle < 1 )); then
+    _ai_hint_timer $(( 1 - idle ))
+  else
+    zle -M "⌥E  turn this comment into a command"
+  fi
+}
+zle -N _ai_hint_arm
+zle -N _ai_hint_fire
+autoload -Uz add-zle-hook-widget
+add-zle-hook-widget line-pre-redraw _ai_hint_arm
 eval "$(zoxide init zsh)"
 eval "$(direnv hook zsh)"
 
