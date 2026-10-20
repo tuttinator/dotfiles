@@ -35,6 +35,7 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 | `cat file` | bat with syntax highlighting |
 | `fd name` / `rg text` | Find files / search contents |
 | `sd 'old' 'new' file` | Find and replace, no regex escaping |
+| `glow README.md` | Render Markdown, tables included |
 | `dust` | What's using disk, as a tree |
 | `duf` | Drives and how full they are |
 | `mo clean` | Clear caches and junk (mole) |
@@ -66,7 +67,7 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 |---|---|
 | `` ` T `` | Switch session (sesh) |
 | `` ` g `` | lazygit popup |
-| `` ` | `` / `` ` t `` | Split right / below |
+| `` ` \| `` / `` ` t `` | Split right / below |
 | `` ` h/j/k/l `` | Move between panes; `Ctrl-h/j/k/l` also crosses nvim splits |
 | `` ` ←→↑↓ `` | Resize pane (repeatable) |
 | `` ` r `` | Reload tmux config |

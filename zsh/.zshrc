@@ -187,14 +187,25 @@ prr() {
   emacsclient -t --eval "$form" 2>/dev/null || emacs -nw --eval "$form"
 }
 
-# `cheat` pages through dotfiles/cheatsheet.md; `cheat git` shows matching lines.
+# `cheat` pages through dotfiles/cheatsheet.md; `cheat git` shows matching rows
+# (or whole sections whose heading matches), keeping table headers so glow
+# still renders them as tables.
 cheat() {
   local sheet=${${:-~/.zshrc}:A:h:h}/cheatsheet.md
-  if (( $# )); then
-    rg -i -- "$*" "$sheet" | bat --plain --paging=never --language=md
-  else
-    bat --style=plain --paging=always --language=md "$sheet"
+  if (( ! $# )); then
+    glow -p "$sheet"
+    return
   fi
+  awk -v q="${(L)*}" '
+    /^## / { h = $0; hm = index(tolower($0), q); shown = 0; next }
+    /^\| (Key|Command) \|/ { th = $0; getline sep; next }
+    /^\|/ && (hm || index(tolower($0), q)) {
+      if (!shown) { printf "%s\n\n%s\n%s\n", h, th, sep; shown = 1 }
+      print
+      next
+    }
+    /^$/ && shown { print; shown = 0 }
+  ' "$sheet" | glow -
 }
 
 # ── Deferred (non-critical, speeds up shell startup) ─────────────────────────

@@ -71,6 +71,7 @@ brew "sd"           # find-and-replace without sed's regex escaping
 brew "dust"         # du as a sorted tree
 brew "duf"          # df as a readable table
 brew "tealdeer"     # fast tldr pages
+brew "glow"         # render Markdown in the terminal (`cheat` uses it)
 brew "aichat"       # Alt-E: describe a command, get the command (config in .config/aichat)
 brew "llm"          # `llm cmd "..."` via llm-cmd; plugins installed by bootstrap.sh
 brew "tree"
