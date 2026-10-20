@@ -91,7 +91,7 @@ COREPACK_ENABLE_AUTO_PIN=0
 export EDITOR=nvim
 export VISUAL=nvim
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"   # bat-powered man pages
-export BAT_THEME="Monokai Extended"
+export BAT_THEME="Tomorrow-Night"           # .config/bat/themes; matches iTerm/Doom
 export GLOW_STYLE=${${:-~/.zshrc}:A:h:h}/.config/glow/tomorrow-night.json   # matches iTerm/Doom
 
 # ── fzf (fd-backed, bat/eza previews) ────────────────────────────────────────

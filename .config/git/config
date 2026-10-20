@@ -28,7 +28,7 @@
 	light = false
 	line-numbers = true
 	side-by-side = false    # flip to true if you prefer side-by-side
-	syntax-theme = Monokai Extended
+	syntax-theme = Tomorrow-Night   # from .config/bat/themes (bat cache --build)
 
 [pull]
 	ff = only

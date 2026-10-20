@@ -70,6 +70,17 @@ link_shared_dotfiles() {
     if [[ -f "$DOTFILES_DIR/mole/whitelist" ]]; then
         backup_and_link "$DOTFILES_DIR/mole/whitelist" "$HOME/.config/mole/whitelist"
     fi
+
+    # Tomorrow Night for bat and delta (git config's syntax-theme); bat only
+    # sees custom themes after a cache rebuild. Debian names the binary batcat.
+    backup_and_link "$DOTFILES_DIR/.config/bat/themes" "$HOME/.config/bat/themes"
+    local bat_cmd
+    for bat_cmd in bat batcat; do
+        if command -v "$bat_cmd" &>/dev/null; then
+            "$bat_cmd" cache --build >/dev/null
+            break
+        fi
+    done
 }
 
 # ── Remove legacy home-directory symlinks once XDG paths are set up ─────────
