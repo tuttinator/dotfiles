@@ -335,8 +335,8 @@ if [[ -f "$DOTFILES_DIR/rectangle/RectangleConfig.json" ]]; then
     backup_and_link "$DOTFILES_DIR/rectangle/RectangleConfig.json" "$HOME/Library/Preferences/com.knollsoft.Rectangle.plist"
 fi
 
-# iTerm2 profiles. Main (Tomorrow Night, JetBrains Mono Nerd Font, Option as
-# Meta) is the default; SSH inherits from it, and its automatic profile
+# iTerm2 profiles. Main (Tomorrow Night, Geist Mono Nerd Font with ligatures,
+# Option as Meta) is the default; SSH inherits from it, and its automatic profile
 # switching rules colour the tab whenever ssh/mosh is running or the shell
 # reports a Tailscale host
 ITERM_PROFILES="$HOME/Library/Application Support/iTerm2/DynamicProfiles"

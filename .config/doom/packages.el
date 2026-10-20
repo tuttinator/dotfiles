@@ -13,7 +13,7 @@
 (package! acp)
 (package! agent-shell)
 
-;; Matches nvim, tmux and the iTerm2 profile
+;; Not the default theme (that's doom-tomorrow-night); kept to try via SPC h t
 (package! catppuccin-theme)
 
 ;; Line-by-line GitHub PR review (inline threads, approve/request changes)
