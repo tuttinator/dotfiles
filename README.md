@@ -33,6 +33,7 @@ cd ~/dotfiles
 - **Git configuration**: Global `.gitconfig` and `.gitignore_global`
 - **Neovim setup**: Lua config (lazy.nvim, treesitter, LSP, blink.cmp, snacks picker, Claude Code); needs Neovim 0.11+
 - **Doom Emacs**: emacs-plus (Emacs 31) with a Doom config in `.config/doom` (evil, eglot, tree-sitter, magit, org, Claude Code via claude-code-ide.el)
+- **Claude Code skills**: personal skills in `claude/skills` (such as `emacs-pr-review`, which reviews PRs alongside the Doom `pr-review` buffer), symlinked into `~/.claude/skills`
 - **iTerm2**: shell integration on every machine, plus an `SSH` dynamic profile (`iterm2/DynamicProfiles/ssh.json`) that tints the tab and shows a badge while `ssh`/`mosh` runs or a Tailscale host is detected
 - **macOS defaults**: Sensible system preferences
 - **SSH key generation**: Automatic setup for GitHub
