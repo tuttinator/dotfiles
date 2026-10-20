@@ -13,6 +13,6 @@ vim.opt.rtp:prepend(lazypath)
 
 -- Loads every file in lua/plugins/
 require('lazy').setup('plugins', {
-  install = { colorscheme = { 'catppuccin' } },
+  install = { colorscheme = { 'base16-tomorrow-night' } },
   change_detection = { notify = false },
 })

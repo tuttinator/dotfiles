@@ -1,14 +1,11 @@
 return {
   {
-    'catppuccin/nvim',
-    name = 'catppuccin',
+    'RRethy/base16-nvim',
     lazy = false,
     priority = 1000,
     config = function()
-      -- Matches the catppuccin-mocha iTerm2 profile in this repo.
-      -- Integrations for installed plugins are detected automatically.
-      require('catppuccin').setup({ flavour = 'mocha' })
-      vim.cmd.colorscheme('catppuccin')
+      -- Tomorrow Night, matching the iTerm Main profile, Doom, bat and glow.
+      vim.cmd.colorscheme('base16-tomorrow-night')
     end,
   },
 

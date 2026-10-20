@@ -81,6 +81,16 @@ link_shared_dotfiles() {
             break
         fi
     done
+
+    # btop rewrites btop.conf on exit, so set only its theme rather than
+    # linking the file. tomorrow-night ships with btop.
+    local btop_conf="$HOME/.config/btop/btop.conf"
+    mkdir -p "$(dirname "$btop_conf")"
+    if grep -q '^color_theme' "$btop_conf" 2>/dev/null; then
+        sed -i.bak 's/^color_theme = .*/color_theme = "tomorrow-night"/' "$btop_conf" && rm -f "$btop_conf.bak"
+    else
+        echo 'color_theme = "tomorrow-night"' >>"$btop_conf"
+    fi
 }
 
 # ── Remove legacy home-directory symlinks once XDG paths are set up ─────────

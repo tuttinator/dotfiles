@@ -344,8 +344,10 @@ mkdir -p "$ITERM_PROFILES"
 backup_and_link "$DOTFILES_DIR/iterm2/DynamicProfiles/main.json" "$ITERM_PROFILES/main.json"
 backup_and_link "$DOTFILES_DIR/iterm2/DynamicProfiles/ssh.json" "$ITERM_PROFILES/ssh.json"
 
-# aichat (Alt-E in zsh); .zshrc sets AICHAT_CONFIG_DIR to this path
+# aichat (Alt-E in zsh); .zshrc sets AICHAT_CONFIG_DIR to this path.
+# dark.tmTheme points at the Tomorrow Night theme bat uses.
 backup_and_link "$DOTFILES_DIR/.config/aichat/config.yaml" "$HOME/.config/aichat/config.yaml"
+backup_and_link "$DOTFILES_DIR/.config/aichat/dark.tmTheme" "$HOME/.config/aichat/dark.tmTheme"
 # iTerm writes its preferences back on quit, so only set the default while
 # it's closed; otherwise pick Main under Settings > Profiles > Other Actions
 ITERM_MAIN_GUID="$(jq -r '.Profiles[0].Guid' "$DOTFILES_DIR/iterm2/DynamicProfiles/main.json")"
