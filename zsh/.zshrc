@@ -92,6 +92,7 @@ export EDITOR=nvim
 export VISUAL=nvim
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"   # bat-powered man pages
 export BAT_THEME="Monokai Extended"
+export GLOW_STYLE=${${:-~/.zshrc}:A:h:h}/.config/glow/tomorrow-night.json   # matches iTerm/Doom
 
 # ── fzf (fd-backed, bat/eza previews) ────────────────────────────────────────
 export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
