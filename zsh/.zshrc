@@ -37,6 +37,16 @@ else
     antidote load
 fi
 
+# fzf-tab: fuzzy completion with previews (loaded via zsh_plugins.txt,
+# before autosuggestions/syntax-highlighting so it can wrap their widgets).
+if (( $+functions[enable-fzf-tab] )); then
+    zstyle ':completion:*:descriptions' format '[%d]'
+    zstyle ':completion:*' list-colors ${(s.:.)LS_COLORS}
+    zstyle ':fzf-tab:complete:cd:*' fzf-preview 'eza -1 --icons --color=always $realpath'
+    zstyle ':fzf-tab:*' switch-group ',' '.'
+    enable-fzf-tab
+fi
+
 # The command-not-found plugin shells out to `brew which-formula`, which runs
 # Homebrew's auto-update when the API cache is stale — ~5s on a typo.
 if (( $+functions[homebrew_command_not_found_handle] )); then
@@ -78,8 +88,18 @@ export BUN_INSTALL="$HOME/.bun"
 
 # ── Misc env vars ────────────────────────────────────────────────────────────
 COREPACK_ENABLE_AUTO_PIN=0
+export EDITOR=nvim
+export VISUAL=nvim
 export MANPAGER="sh -c 'col -bx | bat -l man -p'"   # bat-powered man pages
 export BAT_THEME="Monokai Extended"
+
+# ── fzf (fd-backed, bat/eza previews) ────────────────────────────────────────
+export FZF_DEFAULT_COMMAND='fd --type f --hidden --follow --exclude .git'
+export FZF_DEFAULT_OPTS='--height 40% --layout=reverse --border --info=inline'
+export FZF_CTRL_T_COMMAND="$FZF_DEFAULT_COMMAND"
+export FZF_CTRL_T_OPTS="--preview 'bat -n --color=always --line-range :500 {}'"
+export FZF_ALT_C_COMMAND='fd --type d --hidden --follow --exclude .git'
+export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons --color=always {} | head -200'"
 
 # ── Tool integrations ────────────────────────────────────────────────────────
 eval "$(/opt/homebrew/bin/mise activate zsh)"
@@ -119,10 +139,18 @@ prr() {
 }
 
 # ── Deferred (non-critical, speeds up shell startup) ─────────────────────────
+# fzf's zsh script binds Tab and Ctrl-R itself; keep Ctrl-T/Alt-C from it but
+# hand Tab back to fzf-tab and Ctrl-R back to atuin.
+_load_fzf() {
+    [[ -f ~/.fzf.zsh ]] || return
+    source ~/.fzf.zsh
+    (( $+widgets[fzf-tab-complete] )) && bindkey '^I' fzf-tab-complete
+    (( $+widgets[atuin-search] )) && bindkey '^R' atuin-search
+}
 if (( $+functions[zsh-defer] )); then
     zsh-defer source "${HOME}/.iterm2_shell_integration.zsh" 2>/dev/null
-    zsh-defer source ~/.fzf.zsh 2>/dev/null
+    zsh-defer _load_fzf
 else
     [[ -f "${HOME}/.iterm2_shell_integration.zsh" ]] && source "${HOME}/.iterm2_shell_integration.zsh"
-    [[ -f ~/.fzf.zsh ]] && source ~/.fzf.zsh
+    _load_fzf
 fi
