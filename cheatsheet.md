@@ -10,7 +10,7 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 | `# describe it` then `⌥E` | AI turns the line into a command (aichat, gpt-6-luna) |
 | `Tab` | Fuzzy completion with previews (fzf-tab); `,` `.` switch groups |
 | `Ctrl-R` | Search history (atuin) |
-| `↑` then `↑` | Last command, then atuin search |
+| `↑` then `↑` | Last command, then all history newest first (atuin; Esc keeps the line) |
 | `Ctrl-T` | Fuzzy-pick a file into the line (bat preview) |
 | `⌥C` | Fuzzy cd into a subdirectory (eza tree preview) |
 | `Esc Esc` | Put `sudo` in front of the line |

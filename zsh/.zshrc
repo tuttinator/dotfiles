@@ -104,10 +104,15 @@ export FZF_ALT_C_OPTS="--preview 'eza --tree --level=2 --icons --color=always {}
 # ── Tool integrations ────────────────────────────────────────────────────────
 eval "$(/opt/homebrew/bin/mise activate zsh)"
 eval "$(atuin init zsh --disable-up-arrow)"
-# First up press → recall last command; second up press → atuin search
+# First up press → recall last command; second up press → atuin with an empty
+# query, so it lists all history newest first instead of filtering by that line.
+# Esc leaves the recalled command in place.
 _atuin_smart_up() {
   if [[ "$LASTWIDGET" == "_atuin_smart_up" && -n "$BUFFER" ]]; then
-    zle _atuin_search_widget
+    local recalled=$BUFFER
+    BUFFER=
+    zle atuin-search
+    [[ -n $BUFFER ]] || BUFFER=$recalled
   else
     zle up-line-or-history
   fi
