@@ -48,10 +48,16 @@ if (( $+functions[enable-fzf-tab] )); then
 fi
 
 # The command-not-found plugin shells out to `brew which-formula`, which runs
-# Homebrew's auto-update when the API cache is stale — ~5s on a typo.
+# `brew update --auto-update` (ignoring HOMEBREW_NO_AUTO_UPDATE) once its
+# executables list is older than HOMEBREW_API_AUTO_UPDATE_SECS — ~4s on a
+# typo. Treat the cached list as never stale; `brew update` refreshes it.
+# Homebrew's handler also passes "$*", so `gi tst` was looked up as one name.
 if (( $+functions[homebrew_command_not_found_handle] )); then
     functions[_brew_cnf_handle]=$functions[homebrew_command_not_found_handle]
-    homebrew_command_not_found_handle() { HOMEBREW_NO_AUTO_UPDATE=1 _brew_cnf_handle "$@" }
+    homebrew_command_not_found_handle() {
+        HOMEBREW_NO_AUTO_UPDATE=1 HOMEBREW_API_AUTO_UPDATE_SECS=999999999 _brew_cnf_handle "$@"
+    }
+    command_not_found_handler() { homebrew_command_not_found_handle "$1" }
 fi
 
 # ── PATH (consolidated) ──────────────────────────────────────────────────────
