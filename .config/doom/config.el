@@ -93,21 +93,22 @@
   ;; Let Claude use xref, project, imenu and tree-sitter via MCP tools
   (claude-code-ide-emacs-tools-setup))
 
-;;; Codex, Gemini and friends (agent-shell over ACP)
+;;; Codex, Antigravity and friends (agent-shell over ACP)
 
-;; Each agent logs in through its own CLI (codex login, gemini); agent-shell
-;; reuses that. Codex runs through the codex-acp adapter from the Brewfile.
+;; Codex logs in through its own CLI (codex login) and runs through the
+;; codex-acp adapter from the Brewfile. Antigravity runs through Google's ACP
+;; server, which bootstrap.sh installs, and signs in with a Google account.
 (use-package! agent-shell
-  :commands (agent-shell agent-shell-openai-start-codex agent-shell-google-start-gemini)
+  :commands (agent-shell agent-shell-openai-start-codex agent-shell-antigravity-start-agent)
   :init
   (map! :leader
         (:prefix "a"
          :desc "Codex"              "x" #'agent-shell-openai-start-codex
-         :desc "Gemini"             "g" #'agent-shell-google-start-gemini
+         :desc "Antigravity"        "g" #'agent-shell-antigravity-start-agent
          :desc "Pick an agent"      "A" #'agent-shell))
   :config
-  ;; agent-shell still defaults to the deprecated --experimental-acp
-  (setq agent-shell-google-gemini-acp-command '("gemini" "--acp")))
+  (setq agent-shell-antigravity-acp-command
+        (list (expand-file-name "~/.local/share/agy-acp-server/agy_acp_server.par"))))
 
 ;;; GitHub PR review
 

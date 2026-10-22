@@ -209,6 +209,7 @@ case "$(uname -m)" in
         DBEAVER_ARCH="aarch64"
         VLC_ARCH="arm64"
         ANDROID_STUDIO_ARCH="mac_arm"
+        AGY_ACP_ARCH="darwin-aarch64"
         ;;
     *)
         SLACK_ARCH="x64"
@@ -218,6 +219,7 @@ case "$(uname -m)" in
         DBEAVER_ARCH="x86_64"
         VLC_ARCH="intel64"
         ANDROID_STUDIO_ARCH="mac"
+        AGY_ACP_ARCH="darwin-x86_64"
         ;;
 esac
 
@@ -283,7 +285,7 @@ if [[ "$PROFILE" == full ]]; then
 fi
 
 ###############################################################################
-# 3c. Install Codex CLI and Muse Code
+# 3c. Install Codex CLI, Muse Code and the Antigravity ACP server
 ###############################################################################
 log_info "Installing Codex CLI from the official installer..."
 if ! (
@@ -306,6 +308,32 @@ if (
     log_success "Muse Code installed"
 else
     log_warning "Muse Code installation failed; continuing"
+fi
+
+# Doom's agent-shell drives Antigravity through Google's ACP server, which the
+# antigravity-cli cask doesn't ship. The ACP registry lists the current zip;
+# the server needs the localharness_external binary that comes beside it.
+AGY_ACP_DIR="$HOME/.local/share/agy-acp-server"
+log_info "Installing the Antigravity ACP server..."
+if (
+    set -euo pipefail
+    url="$(curl -fsSL https://raw.githubusercontent.com/agentclientprotocol/registry/main/antigravity-acp/agent.json |
+        jq -r --arg arch "$AGY_ACP_ARCH" '.distribution.binary[$arch].archive')"
+    tmp="$(mktemp -d)"
+    trap 'rm -rf "$tmp"' EXIT
+    curl -fsSL --retry 3 "$url" -o "$tmp/acp.zip"
+    ditto -x -k "$tmp/acp.zip" "$tmp/x"
+    for bin in "$tmp"/x/*; do
+        codesign --verify --strict "$bin"
+        [[ "$(codesign -dv "$bin" 2>&1)" == *"TeamIdentifier=EQHXZ8M8AV"* ]]
+    done
+    rm -rf "$AGY_ACP_DIR"
+    mkdir -p "$(dirname "$AGY_ACP_DIR")"
+    mv "$tmp/x" "$AGY_ACP_DIR"
+); then
+    log_success "Antigravity ACP server installed in $AGY_ACP_DIR"
+else
+    log_warning "Antigravity ACP server installation failed; continuing"
 fi
 
 ###############################################################################

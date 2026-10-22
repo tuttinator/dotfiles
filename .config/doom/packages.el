@@ -8,7 +8,7 @@
 (package! claude-code-ide
   :recipe (:host github :repo "manzaltu/claude-code-ide.el"))
 
-;; Codex, Gemini and other agents in native Emacs buffers, over ACP
+;; Codex, Antigravity and other agents in native Emacs buffers, over ACP
 (package! shell-maker)
 (package! acp)
 (package! agent-shell)

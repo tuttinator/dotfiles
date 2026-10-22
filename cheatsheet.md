@@ -23,7 +23,7 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 | `llm cmd "undo last commit, keep changes"` | Drafts a command to edit before running |
 | `llm "question"` | One-off question |
 | `aichat` | Chat REPL |
-| `claude` / `codex` / `gemini` | Coding agents |
+| `claude` / `codex` / `agy` | Coding agents (`agy` is Antigravity) |
 | `tldr tar` | Practical examples (offline, no AI) |
 
 ## Files and disk
@@ -90,7 +90,7 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 | Key | Does |
 |---|---|
 | `␣aa` `␣ac` `␣ar` | Claude Code menu, start, resume |
-| `␣ax` `␣ag` `␣aA` | Codex, Gemini, pick an agent |
+| `␣ax` `␣ag` `␣aA` | Codex, Antigravity, pick an agent |
 | `␣gvv` `␣gvs` `␣gvn` | Open PR by URL, search PRs, review requests |
 | `,f` `,c` `,x` (in a PR) | Files sidebar, ask Claude, ask Codex |
 

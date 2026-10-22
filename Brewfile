@@ -77,7 +77,6 @@ brew "aichat"       # Alt-E: describe a command, get the command (config in .con
 brew "llm"          # `llm cmd "..."` via llm-cmd; plugins installed by bootstrap.sh
 brew "tree"
 brew "htop"
-brew "gemini-cli"   # agent-shell talks to it over ACP
 brew "gh"
 
 brew "git"
@@ -145,6 +144,7 @@ brew "kenn-io/tap/roborev"
 # installers; a Homebrew-managed copy fights the updater. What's left here is
 # CLIs, fonts and Emacs, which nothing else keeps up to date.
 cask "android-platform-tools"
+cask "antigravity-cli"   # `agy`; Doom's agent-shell uses the ACP server from bootstrap.sh
 cask "d12frosted/emacs-plus/emacs-plus-app"  # prebuilt Emacs 31 + native-comp; config is Doom
 cask "font-commit-mono-nerd-font"
 cask "font-fira-code-nerd-font"
