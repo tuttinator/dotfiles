@@ -100,4 +100,5 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 |---|---|
 | `mise run lint` / `mise run test` | Lint hooks / syntax checks |
 | `mise run bootstrap` | Re-run machine setup |
+| `mise run figwright` | Install or update Figwright (Figma MCP) for Claude Code |
 | `brew bundle` | Install anything new in the Brewfile |

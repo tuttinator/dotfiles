@@ -6,6 +6,10 @@
 description = "Full machine setup (Homebrew, symlinks, plugins)"
 run = "./bootstrap.sh"
 
+[tasks.figwright]
+description = "Install or update Figwright (Figma MCP, riez's fork) for Claude Code"
+run = "lib/figwright.sh"
+
 [tasks.lint]
 description = "Lint shell and Lua, scan for secrets (lefthook, all files)"
 run = "lefthook run pre-commit --all-files"
