@@ -15,6 +15,7 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 | `⌥C` | Fuzzy cd into a subdirectory (eza tree preview) |
 | `Esc Esc` | Put `sudo` in front of the line |
 | `→` | Accept the grey autosuggestion |
+| `⌥←` `⌥→` (iTerm SSH tabs) | Jump a word back or forward in the remote shell |
 
 ## Ask AI
 

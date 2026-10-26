@@ -1,45 +1,62 @@
 {
-  "Profiles": [
+  "Profiles" : [
     {
-      "Rewritable": true,
-      "Guid": "6E0B7A52-3C1D-4D8E-9A3F-55B1C0D2E7A1",
-      "Badge Font": "JetBrainsMonoNFM-Bold",
-      "Dynamic Profile Parent Name": "Main",
-      "Name": "SSH",
-      "Tab Color (Dark)": {
-        "Red Component": 0.95299999999999996,
-        "Color Space": "sRGB",
-        "Blue Component": 0.65900000000000003,
-        "Alpha Component": 1,
-        "Green Component": 0.54500000000000004
-      },
-      "Bound Hosts": [
+      "Rewritable" : true,
+      "Guid" : "6E0B7A52-3C1D-4D8E-9A3F-55B1C0D2E7A1",
+      "Use Tab Color" : true,
+      "Use Tab Color (Light)" : true,
+      "Name" : "SSH",
+      "Use Separate Colors for Light and Dark Mode" : false,
+      "Window Type" : 0,
+      "Bound Hosts" : [
         "&ssh",
         "&mosh-client",
         "*.ts.net"
       ],
-      "Window Type": 0,
-      "Tab Color": {
-        "Red Component": 0.95299999999999996,
-        "Color Space": "sRGB",
-        "Blue Component": 0.65900000000000003,
-        "Alpha Component": 1,
-        "Green Component": 0.54500000000000004
+      "Tab Color (Dark)" : {
+        "Red Component" : 0.95299999999999996,
+        "Color Space" : "sRGB",
+        "Blue Component" : 0.65900000000000003,
+        "Alpha Component" : 1,
+        "Green Component" : 0.54500000000000004
       },
-      "Use Tab Color (Dark)": true,
-      "Badge Text": "\\(session.commandLine)",
-      "Tags": [
+      "Tab Color" : {
+        "Red Component" : 0.95299999999999996,
+        "Color Space" : "sRGB",
+        "Blue Component" : 0.65900000000000003,
+        "Alpha Component" : 1,
+        "Green Component" : 0.54500000000000004
+      },
+      "Use Tab Color (Dark)" : true,
+      "Badge Text" : "\\(session.commandLine)",
+      "Keyboard Map" : {
+        "0xf702-0x280000-0x7b-0x1" : {
+          "Version" : 2,
+          "Apply Mode" : 0,
+          "Action" : 10,
+          "Text" : "b",
+          "Escaping" : 2
+        },
+        "0xf703-0x280000-0x7c-0x1" : {
+          "Version" : 2,
+          "Apply Mode" : 0,
+          "Action" : 10,
+          "Text" : "f",
+          "Escaping" : 2
+        }
+      },
+      "Tags" : [
         "ssh"
       ],
-      "Tab Color (Light)": {
-        "Red Component": 0.95299999999999996,
-        "Color Space": "sRGB",
-        "Blue Component": 0.65900000000000003,
-        "Alpha Component": 1,
-        "Green Component": 0.54500000000000004
+      "Tab Color (Light)" : {
+        "Red Component" : 0.95299999999999996,
+        "Color Space" : "sRGB",
+        "Blue Component" : 0.65900000000000003,
+        "Alpha Component" : 1,
+        "Green Component" : 0.54500000000000004
       },
-      "Use Tab Color": true,
-      "Use Tab Color (Light)": true
+      "Badge Font" : "JetBrainsMonoNFM-Bold",
+      "Dynamic Profile Parent Name" : "Main"
     }
   ]
 }
