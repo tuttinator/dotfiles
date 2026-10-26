@@ -56,8 +56,8 @@ on), compare migration numbers and timestamps with the default branch.
 
 ## 4. Review
 
-- Use the repository's own review skill when it has one (for example
-  `/athena-code-review` in Athena); otherwise `/code-review`.
+- Use the repository's own review skill when it has one; otherwise
+  `/code-review`.
 - For a diff over about 5,000 lines, split it into slices (writers and
   locking, reads and auth, UI and tests) and review them in parallel with
   forks. Spot-check their headline claims before reporting.

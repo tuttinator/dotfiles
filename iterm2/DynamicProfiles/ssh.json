@@ -16,7 +16,7 @@
       "Bound Hosts": [
         "&ssh",
         "&mosh-client",
-        "*.tail1efd9b.ts.net"
+        "*.ts.net"
       ],
       "Window Type": 0,
       "Tab Color": {

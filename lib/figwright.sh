@@ -1,7 +1,7 @@
 #!/bin/bash
 ###############################################################################
 # Install or update Figwright (two-way Figma MCP server) from riez's fork,
-# whose local/installed branch carries the Athena tools upstream doesn't have.
+# whose local/installed branch carries tools upstream doesn't have yet.
 # Builds it in ~/Projects/figwright, registers it with Claude Code for every
 # project and links its skills. Safe to re-run; it pulls and rebuilds.
 #
