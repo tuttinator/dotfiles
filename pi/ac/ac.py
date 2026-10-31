@@ -14,6 +14,7 @@ calibration). Calibration lives in ~/.local/share/pi-ac/, outside the repo.
 
 from __future__ import annotations
 
+import contextlib
 import fcntl
 import io
 import json
@@ -173,24 +174,43 @@ def calibrate() -> int:
 # --- commands ----------------------------------------------------------------------
 
 
-def switch(code: int, want: str, label: str) -> int:
+@contextlib.contextmanager
+def device_lock():
+    """One user of the IR blaster and camera at a time (CLI and acd share it)."""
+    DATA.mkdir(parents=True, exist_ok=True)
+    with open(DATA / "lock", "w") as lock:
+        fcntl.flock(lock, fcntl.LOCK_EX)
+        yield
+
+
+def command(action: str, temp: int | None = None) -> tuple[str, int, str]:
+    """Resolve an action to (code, expected state, label)."""
+    if action == "on":
+        return irblaster.COOLIX["on"], "on", "on (cool 17 °C)"
+    if action == "off":
+        return irblaster.COOLIX["off"], "off", "off"
+    if action == "cool" and temp in irblaster.COOLIX_TEMP:
+        return irblaster.coolix_cool(temp), "on", f"cooling at {temp} °C"
+    raise ValueError("action must be on, off or cool with a temperature of 17-30")
+
+
+def switch(code: int, want: str, label: str) -> tuple[int, str]:
+    """Send, then watch the camera. Returns (exit status, message):
+    0 confirmed, 1 not confirmed, 2 sent but uncalibrated."""
     cfg = load_config()
     send(code)
     if cfg is None:
-        print(f"Sent {label}; not verified (run `ac calibrate`)")
-        return 2
+        return 2, f"Sent {label}; not verified (run `ac calibrate`)"
     for attempt in (1, 2):
         start = time.monotonic()
         for t in POLL:
             time.sleep(max(0, t - (time.monotonic() - start)))
             if status(cfg) == want:
-                print(f"A/C {label} ✓ confirmed by camera" + (" (after resend)" if attempt == 2 else ""))
-                return 0
+                return 0, f"A/C {label} ✓ confirmed by camera" + (" (after resend)" if attempt == 2 else "")
         if attempt == 1:
             print("no change seen; resending", file=sys.stderr)
             send(code)
-    print(f"Sent {label} twice but the camera doesn't show it {want} ✗")
-    return 1
+    return 1, f"Sent {label} twice but the camera doesn't show it {want} ✗"
 
 
 def main() -> int:
@@ -198,16 +218,16 @@ def main() -> int:
     if not args or args[0] in ("-h", "--help"):
         print(__doc__)
         return 0
-    DATA.mkdir(parents=True, exist_ok=True)
-    with open(DATA / "lock", "w") as lock:
-        fcntl.flock(lock, fcntl.LOCK_EX)  # one USB/camera user at a time
-        cmd = args[0]
-        if cmd == "on":
-            return switch(irblaster.COOLIX["on"], "on", "on (cool 17 °C)")
-        if cmd == "off":
-            return switch(irblaster.COOLIX["off"], "off", "off")
-        if cmd == "cool" and len(args) == 2 and args[1].isdigit() and int(args[1]) in irblaster.COOLIX_TEMP:
-            return switch(irblaster.coolix_cool(int(args[1])), "on", f"cooling at {args[1]} °C")
+    cmd = args[0]
+    with device_lock():
+        if cmd in ("on", "off", "cool"):
+            temp = int(args[1]) if cmd == "cool" and len(args) == 2 and args[1].isdigit() else None
+            try:
+                rc, message = switch(*command(cmd, temp))
+            except ValueError as e:
+                sys.exit(str(e))
+            print(message)
+            return rc
         if cmd == "status":
             cfg = load_config()
             if cfg is None:

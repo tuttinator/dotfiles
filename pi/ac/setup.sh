@@ -34,4 +34,34 @@ if ! cmp -s "$AC_DIR/70-irblaster.rules" "$RULE"; then
     sudo udevadm trigger --attr-match=idVendor=045c
 fi
 
-echo "Installed ac, irblaster and acsnap in $BIN"
+# acd: the HTTP API for the phone app, as a user service that starts at boot.
+# The OpenAI key, if any, goes in ~/.config/pi-ac/openai.env (mode 600):
+#   OPENAI_API_KEY=...
+UNIT_DIR="$HOME/.config/systemd/user"
+mkdir -p "$UNIT_DIR"
+cat >"$UNIT_DIR/acd.service" <<EOF
+[Unit]
+Description=A/C control API (acd)
+After=network-online.target
+
+[Service]
+ExecStart=$VENV/bin/python $AC_DIR/acd.py
+EnvironmentFile=-%h/.config/pi-ac/openai.env
+Restart=on-failure
+
+[Install]
+WantedBy=default.target
+EOF
+systemctl --user daemon-reload
+systemctl --user enable acd.service
+systemctl --user restart acd.service
+
+if [[ "$(loginctl show-user "$USER" -p Linger --value 2>/dev/null)" != yes ]]; then
+    sudo loginctl enable-linger "$USER" # start user services at boot, not at login
+fi
+
+if ! tailscale serve status 2>/dev/null | grep -q 127.0.0.1:8765; then
+    sudo tailscale serve --bg --http=80 127.0.0.1:8765
+fi
+
+echo "Installed ac, irblaster and acsnap in $BIN; acd is on http://$(hostname)/ over Tailscale"

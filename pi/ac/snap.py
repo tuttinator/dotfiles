@@ -19,11 +19,11 @@ DEVICE = os.environ.get("ACSNAP_DEVICE", "/dev/video0")
 WARMUP_FRAMES = 15
 
 
-def capture() -> bytes:
+def capture(width: int = 1280, height: int = 720) -> bytes:
     with tempfile.NamedTemporaryFile(suffix=".mjpg") as raw:
         subprocess.run(
             ["v4l2-ctl", "-d", DEVICE,
-             "--set-fmt-video=width=1280,height=720,pixelformat=MJPG",
+             f"--set-fmt-video=width={width},height={height},pixelformat=MJPG",
              "--stream-mmap", f"--stream-count={WARMUP_FRAMES}", f"--stream-to={raw.name}"],
             check=True, stdout=subprocess.DEVNULL, stderr=subprocess.DEVNULL,
         )

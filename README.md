@@ -231,6 +231,15 @@ command). Name it like "A/C on" to run it from Siri. With Tailscale SSH and an
 generates to `~/.ssh/authorized_keys`. `~/.zshenv` puts `~/.local/bin` on the
 PATH for these non-interactive sessions.
 
+`acd` is the same thing as an HTTP API for a phone app: `setup.sh` installs it
+as a systemd user service on 127.0.0.1:8765 and publishes it to the tailnet with
+`tailscale serve --http=80` (tailnet-only; requests must carry Tailscale's
+identity header). Endpoints: `GET /api/status`, `GET /api/snapshot` (a crop around
+the unit), `POST /api/command` (`{"action": "on"|"off"|"cool", "temp": 22}`) and
+`POST /api/describe`, which sends only that crop to OpenAI to read the display.
+Put the key in `~/.config/pi-ac/openai.env` (`OPENAI_API_KEY=…`, mode 600) and
+`systemctl --user restart acd`.
+
 - Aim the dongle's tip at the unit; mounting it beside the webcam works well,
   since the camera's view proves line of sight.
 - `irblaster learn` exists but this dongle never received IR in testing, and a
