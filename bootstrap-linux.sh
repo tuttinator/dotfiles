@@ -151,6 +151,7 @@ log_success "Directories created"
 log_info "Creating symlinks for dotfiles..."
 
 backup_and_link "$DOTFILES_DIR/zsh/.zshrc.linux" "$HOME/.zshrc"
+backup_and_link "$DOTFILES_DIR/zsh/.zshenv.linux" "$HOME/.zshenv"
 backup_and_link "$DOTFILES_DIR/zsh/zsh_plugins_linux.txt" "$HOME/.zsh_plugins.txt"
 
 link_shared_dotfiles

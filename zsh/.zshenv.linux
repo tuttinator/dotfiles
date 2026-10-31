@@ -1,0 +1,3 @@
+# Read by every zsh, including `ssh host cmd` (which skips .zshrc), so tools
+# installed per-user are reachable from scripts and iOS Shortcuts too.
+[[ ":$PATH:" != *":$HOME/.local/bin:"* ]] && export PATH="$HOME/.local/bin:$PATH"
