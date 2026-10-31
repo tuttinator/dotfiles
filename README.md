@@ -212,10 +212,24 @@ with a USB webcam pointed at the indoor unit.
 
 ```bash
 ~/dotfiles/pi/ac/setup.sh          # venv, wrappers in ~/.local/bin, udev rule (sudo)
-irblaster coolix off               # Midea units with R51-series remotes use Coolix
-irblaster coolix cool22            # cool at 22 °C, fan auto; any state turns it on
+ac calibrate                       # once per camera position: switches off, then on
+ac on                              # cool 17 °C; `ac off`, `ac cool 22`, `ac status`
+irblaster coolix off               # raw send, no camera check (Coolix: Midea R51 remotes)
 acsnap - | chafa -                 # one webcam frame, rendered in the terminal
 ```
+
+`ac` sends the command, then compares the part of the frame that changed during
+calibration (flap and display) with stored on/off references until it sees the
+expected state, resending once if it doesn't. It exits 0 when confirmed, 1 when
+not, and 2 when uncalibrated. The comparison is normalised for brightness, so
+daylight changes don't matter; rerun `ac calibrate` if the camera moves.
+
+From an iPhone: in Shortcuts, add **Run script over SSH** with host = the Pi's
+Tailscale name, user = your Pi user and script `ac on` (one shortcut per
+command). Name it like "A/C on" to run it from Siri. With Tailscale SSH and an
+`accept` rule for the Pi's tag, no key is needed; otherwise add the key Shortcuts
+generates to `~/.ssh/authorized_keys`. `~/.zshenv` puts `~/.local/bin` on the
+PATH for these non-interactive sessions.
 
 - Aim the dongle's tip at the unit; mounting it beside the webcam works well,
   since the camera's view proves line of sight.

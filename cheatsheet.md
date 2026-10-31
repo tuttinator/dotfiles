@@ -104,5 +104,7 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 | `mise run bootstrap` | Re-run machine setup |
 | `mise run figwright` | Install or update Figwright (Figma MCP) for Claude Code |
 | `brew bundle` | Install anything new in the Brewfile |
-| `irblaster coolix off` / `on` / `cool22` | Pi: A/C off, on (cool 17 °C) or cool at 17–30 °C via the USB IR blaster |
+| `ac on` / `ac off` / `ac cool 22` | Pi: switch the A/C and confirm with the webcam (one resend if needed) |
+| `ac status` / `ac calibrate` | Pi: on or off, from the camera / relearn where the unit is in frame |
+| `irblaster coolix off` / `on` / `cool22` | Pi: send an A/C code without checking the camera |
 | `ssh <pi> acsnap - \| chafa -` | Pi: show a webcam frame here (check the A/C responded) |

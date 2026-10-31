@@ -1,7 +1,7 @@
 #!/bin/bash
 # Set up the IR blaster and webcam tools on a Pi:
 #   - a venv with pyusb and Pillow under ~/.local/share/pi-ac
-#   - `irblaster` and `acsnap` wrappers in ~/.local/bin
+#   - `ac`, `irblaster` and `acsnap` wrappers in ~/.local/bin
 #   - the udev rule that lets plugdev users open the IR blaster (asks for sudo)
 # Safe to re-run.
 
@@ -20,7 +20,7 @@ mkdir -p "$DATA_DIR" "$BIN"
 [[ -x "$VENV/bin/python" ]] || python3 -m venv "$VENV"
 "$VENV/bin/pip" install -q -r "$AC_DIR/requirements.txt"
 
-for pair in irblaster:irblaster.py acsnap:snap.py; do
+for pair in ac:ac.py irblaster:irblaster.py acsnap:snap.py; do
     name=${pair%%:*}
     script=${pair#*:}
     printf '#!/bin/sh\nexec "%s" "%s" "$@"\n' "$VENV/bin/python" "$AC_DIR/$script" >"$BIN/$name"
@@ -34,4 +34,4 @@ if ! cmp -s "$AC_DIR/70-irblaster.rules" "$RULE"; then
     sudo udevadm trigger --attr-match=idVendor=045c
 fi
 
-echo "Installed irblaster and acsnap in $BIN"
+echo "Installed ac, irblaster and acsnap in $BIN"
