@@ -1,0 +1,2 @@
+# ElkSmart/Ocrustar USB IR blaster: let plugdev users drive it via libusb
+SUBSYSTEM=="usb", ATTR{idVendor}=="045c", ATTR{idProduct}=="0195", MODE="0660", GROUP="plugdev"

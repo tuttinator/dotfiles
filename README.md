@@ -204,6 +204,25 @@ normally; after fixing Wi-Fi, you can manually rerun:
 sudo bash -x /boot/firmware/firstrun.sh
 ```
 
+### Controlling an air conditioner (IR blaster + webcam)
+
+`pi/ac/` drives a USB-C ElkSmart/Ocrustar IR blaster (USB ID `045c:0195`, sold
+as a phone accessory; it works through a USB-A adapter) and checks the result
+with a USB webcam pointed at the indoor unit.
+
+```bash
+~/dotfiles/pi/ac/setup.sh          # venv, wrappers in ~/.local/bin, udev rule (sudo)
+irblaster coolix off               # Midea units with R51-series remotes use Coolix
+irblaster coolix cool22            # cool at 22 °C, fan auto; any state turns it on
+acsnap - | chafa -                 # one webcam frame, rendered in the terminal
+```
+
+- Aim the dongle's tip at the unit; mounting it beside the webcam works well,
+  since the camera's view proves line of sight.
+- `irblaster learn` exists but this dongle never received IR in testing, and a
+  learn that times out leaves it ignoring USB until it is replugged or the Pi
+  reboots. Learned codes go to `~/.local/share/pi-ac/codes.json`, outside the repo.
+
 ## 📁 Structure
 
 ```text
@@ -229,6 +248,7 @@ sudo bash -x /boot/firmware/firstrun.sh
 ├── tmux/
 │   └── .tmux.conf          # Tmux configuration
 ├── iterm2/                 # iTerm2 color schemes
+├── pi/ac/                  # Raspberry Pi A/C control: IR blaster + webcam check
 └── rectangle/              # Rectangle window manager config
 ```
 
