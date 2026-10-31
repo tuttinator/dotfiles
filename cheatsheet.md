@@ -37,6 +37,7 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 | `fd name` / `rg text` | Find files / search contents |
 | `sd 'old' 'new' file` | Find and replace, no regex escaping |
 | `glow README.md` | Render Markdown, tables included |
+| `chafa pic.jpg` | Show an image inline (works over ssh and in tmux) |
 | `dust` | What's using disk, as a tree |
 | `duf` | Drives and how full they are |
 | `mo clean` | Clear caches and junk (mole) |

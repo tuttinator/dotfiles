@@ -39,6 +39,7 @@ sudo apt-get install -y \
     build-essential \
     bat \
     btop \
+    chafa \
     curl \
     fzf \
     git \
