@@ -157,6 +157,7 @@ cask "font-jetbrains-mono"
 cask "font-maple-mono-nf"
 cask "font-monaspace-nerd-font"  # "Monaspice" in font menus
 cask "font-newsreader"
+cask "font-sf-pro"       # macOS UI mockups in Figma; Segoe UI Variable has no cask (aka.ms/SegoeUIVariable)
 cask "font-symbols-only-nerd-font"  # icons for Doom (nerd-icons)
 cask "gcloud-cli"
 cask "ngrok"
