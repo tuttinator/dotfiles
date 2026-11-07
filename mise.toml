@@ -10,6 +10,10 @@ run = "./bootstrap.sh"
 description = "Install or update Figwright (Figma MCP, riez's fork) for Claude Code"
 run = "lib/figwright.sh"
 
+[tasks.rust]
+description = "Install or update Rust via rustup (stable, rustfmt, clippy, rust-analyzer)"
+run = "lib/rust.sh"
+
 [tasks.lint]
 description = "Lint shell and Lua, scan for secrets (lefthook, all files)"
 run = "lefthook run pre-commit --all-files"

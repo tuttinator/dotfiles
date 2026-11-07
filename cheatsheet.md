@@ -103,6 +103,7 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 | `mise run lint` / `mise run test` | Lint hooks / syntax checks |
 | `mise run bootstrap` | Re-run machine setup |
 | `mise run figwright` | Install or update Figwright (Figma MCP) for Claude Code |
+| `mise run rust` | Install or update Rust via rustup (stable + rustfmt, clippy, rust-analyzer; Apple targets on macOS) |
 | `brew bundle` | Install anything new in the Brewfile |
 | `ac on` / `ac off` / `ac cool 22` | Pi: switch the A/C and confirm with the webcam (one resend if needed) |
 | `ac status` / `ac calibrate` | Pi: on or off, from the camera / relearn where the unit is in frame |

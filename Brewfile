@@ -111,8 +111,7 @@ brew "pipx"
 brew "pnpm"
 brew "r" if full      # r pulls gcc (~480MB) via openblas
 brew "redis", restart_service: :changed
-brew "rust" if full      # rust pulls llvm@22 (~1.5GB)
-brew "rust-analyzer" if full
+brew "rustup"            # keg-only; lib/rust.sh installs the toolchain (not the `rust` formula)
 brew "solargraph"
 brew "ssh-copy-id"
 brew "starship"

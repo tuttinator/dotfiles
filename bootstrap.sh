@@ -285,6 +285,11 @@ if [[ "$PROFILE" == full ]]; then
 fi
 
 ###############################################################################
+# 3b'. Rust via rustup (projects pin toolchains in rust-toolchain.toml)
+###############################################################################
+"$DOTFILES_DIR/lib/rust.sh"
+
+###############################################################################
 # 3c. Install Codex CLI, Muse Code and the Antigravity ACP server
 ###############################################################################
 log_info "Installing Codex CLI from the official installer..."

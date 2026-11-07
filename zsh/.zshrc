@@ -69,9 +69,11 @@ elif [[ -x /usr/local/bin/brew ]]; then
 fi
 
 path=(
+    ${homebrew_prefix:+$homebrew_prefix/opt/rustup/bin}   # keg-only rustup proxies (lib/rust.sh)
     ${homebrew_prefix:+$homebrew_prefix/bin}
     ${homebrew_prefix:+$homebrew_prefix/sbin}
     "$HOME/.local/bin"
+    "$HOME/.cargo/bin"
     "$HOME/bin"
     "$HOME/.config/emacs/bin"
     "$HOME/.yarn/bin"
