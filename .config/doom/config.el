@@ -98,17 +98,51 @@
 ;; Codex logs in through its own CLI (codex login) and runs through the
 ;; codex-acp adapter from the Brewfile. Antigravity runs through Google's ACP
 ;; server, which bootstrap.sh installs, and signs in with a Google account.
+;; omp, opencode and Hermes serve ACP themselves (`<cmd> acp`). Muse Code does
+;; too, but agent-shell has no module for it, so it's defined below.
 (use-package! agent-shell
-  :commands (agent-shell agent-shell-openai-start-codex agent-shell-antigravity-start-agent)
+  :commands (agent-shell agent-shell-openai-start-codex agent-shell-antigravity-start-agent
+             agent-shell-omp-start agent-shell-opencode-start-agent
+             agent-shell-hermes-start-agent +agent-shell/muse)
   :init
   (map! :leader
         (:prefix "a"
          :desc "Codex"              "x" #'agent-shell-openai-start-codex
          :desc "Antigravity"        "g" #'agent-shell-antigravity-start-agent
+         :desc "omp (Oh My Pi)"     "m" #'agent-shell-omp-start
+         :desc "Muse Code"          "M" #'+agent-shell/muse
+         :desc "opencode"           "o" #'agent-shell-opencode-start-agent
+         :desc "Hermes"             "h" #'agent-shell-hermes-start-agent
          :desc "Pick an agent"      "A" #'agent-shell))
   :config
   (setq agent-shell-antigravity-acp-command
-        (list (expand-file-name "~/.local/share/agy-acp-server/agy_acp_server.par"))))
+        (list (expand-file-name "~/.local/share/agy-acp-server/agy_acp_server.par")))
+
+  (defun +agent-shell-muse-make-agent-config ()
+    "Agent-shell configuration for Meta's Muse Code over `muse acp'."
+    (agent-shell-make-agent-config
+     :identifier 'muse
+     :mode-line-name "Muse"
+     :buffer-name "Muse"
+     :shell-prompt "Muse> "
+     :shell-prompt-regexp "Muse> "
+     :welcome-function #'agent-shell-welcome-message
+     :client-maker (lambda (buffer)
+                     (agent-shell--make-acp-client :command "muse"
+                                                   :command-params '("acp")
+                                                   :context-buffer buffer))
+     :install-instructions "Run bootstrap.sh, which installs Muse Code from https://dev.meta.ai."))
+
+  (defun +agent-shell/muse ()
+    "Start a Muse Code agent shell."
+    (interactive)
+    (agent-shell--dwim :config (+agent-shell-muse-make-agent-config)
+                       :new-shell t))
+
+  ;; List Muse in the `agent-shell' picker (SPC a A) alongside the built-ins.
+  (setq agent-shell-agent-configs
+        (append (agent-shell-default-agent-config-makers)
+                (list #'+agent-shell-muse-make-agent-config))))
 
 ;;; GitHub PR review
 

@@ -94,6 +94,7 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 |---|---|
 | `␣aa` `␣ac` `␣ar` | Claude Code menu, start, resume |
 | `␣ax` `␣ag` `␣aA` | Codex, Antigravity, pick an agent |
+| `␣am` `␣aM` `␣ao` `␣ah` | omp, Muse Code, opencode, Hermes |
 | `␣gvv` `␣gvs` `␣gvn` | Open PR by URL, search PRs, review requests |
 | `,f` `,c` `,x` (in a PR) | Files sidebar, ask Claude, ask Codex |
 
