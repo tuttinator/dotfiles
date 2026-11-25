@@ -81,6 +81,7 @@ path=(
     "$HOME/.bun/bin"
     "$HOME/.lmstudio/bin"
     "$HOME/.antigravity/antigravity/bin"
+    "/Applications/Paseo.app/Contents/Resources/bin"
     "$HOME/Library/Android/sdk/emulator"
     "$HOME/Library/Android/sdk/tools"
     "$HOME/Library/Android/sdk/tools/bin"

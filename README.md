@@ -27,7 +27,8 @@ cd ~/dotfiles
 
 - **Homebrew packages**: Development tools, CLI utilities, and applications
 - **Data science**: Standalone Quarto CLI, plus Positron and R in the full profile
-- **Native installers**: Slack, VS Code, Claude, ChatGPT, Codex, Discord, Zoom, Figma, iTerm2, Rectangle, OrbStack, DBeaver, Tailscale, Cloudflare WARP, Viscosity and VLC (plus Positron, Ollama, LM Studio, Android Studio and Raspberry Pi Imager in the full profile) come from their vendors' installers and keep themselves updated
+- **Native installers**: Slack, VS Code, Claude, ChatGPT, Codex, Discord, Zoom, Figma, iTerm2, Rectangle, OrbStack, DBeaver, Tailscale, Cloudflare WARP, Viscosity, VLC and Paseo (plus Positron, Ollama, LM Studio, Android Studio and Raspberry Pi Imager in the full profile) come from their vendors' installers and keep themselves updated
+- **Coding agents**: Claude Code, Codex, Antigravity (`agy`), opencode, omp and Meta's Muse Code (plus Hermes in the full profile); Doom drives all but Claude through agent-shell
 - **Zsh configuration**: Custom `.zshrc` with plugins managed by Antidote
 - **Starship prompt**: Beautiful, fast shell prompt with Git integration
 - **Git configuration**: Global `.gitconfig` and `.gitignore_global`

@@ -210,6 +210,7 @@ case "$(uname -m)" in
         VLC_ARCH="arm64"
         ANDROID_STUDIO_ARCH="mac_arm"
         AGY_ACP_ARCH="darwin-aarch64"
+        PASEO_ARCH="arm64"
         ;;
     *)
         SLACK_ARCH="x64"
@@ -220,6 +221,7 @@ case "$(uname -m)" in
         VLC_ARCH="intel64"
         ANDROID_STUDIO_ARCH="mac"
         AGY_ACP_ARCH="darwin-x86_64"
+        PASEO_ARCH="x64"
         ;;
 esac
 
@@ -230,6 +232,10 @@ CLAUDE_URL="$(curl -fsSL https://downloads.claude.ai/releases/darwin/universal/R
 # VLC has no "latest" link; its Sparkle feed lists releases oldest first.
 VLC_URL="$(curl -fsSL "https://update.videolan.org/vlc/sparkle/vlc-$VLC_ARCH.xml" |
     grep -o 'url="[^"]*\.dmg"' | tail -1 | cut -d'"' -f2 | sed 's|^http:|https:|')"
+
+# Paseo's release files carry the version; only the Mac DMGs end in .dmg.
+PASEO_URL="$(curl -fsSL https://api.github.com/repos/getpaseo/paseo/releases/latest |
+    jq -r --arg arch "$PASEO_ARCH" '.assets[].browser_download_url | select(endswith("-\($arch).dmg"))')"
 
 # Slack's PKG installs its privileged updater alongside the app.
 install_native_app "Slack" slack BQR82RBBHL \
@@ -262,6 +268,9 @@ install_native_app "Cloudflare WARP" cloudflare-warp 68WVV388M8 \
 install_native_app "Viscosity" viscosity 34XR7GXFPX \
     "https://www.sparklabs.com/downloads/Viscosity.dmg"
 install_native_app "VLC" vlc 75GAHG3SZQ "$VLC_URL"
+# Paseo runs a daemon that drives the coding agents; its `paseo` CLI lives in
+# the app bundle, which .zshrc puts on PATH.
+install_native_app "Paseo" paseo 99ZMJMKU9Y "$PASEO_URL"
 
 if [[ "$PROFILE" == full ]]; then
     POSITRON_URL="$(curl -fsSL https://cdn.posit.co/positron/releases/mac/universal/releases.json |
@@ -290,7 +299,7 @@ fi
 "$DOTFILES_DIR/lib/rust.sh"
 
 ###############################################################################
-# 3c. Install Codex CLI, Muse Code and the Antigravity ACP server
+# 3c. Install Codex CLI, Muse Code, omp and the Antigravity ACP server
 ###############################################################################
 log_info "Installing Codex CLI from the official installer..."
 if ! (
@@ -313,6 +322,19 @@ if (
     log_success "Muse Code installed"
 else
     log_warning "Muse Code installation failed; continuing"
+fi
+
+# Oh My Pi (omp), a batteries-included fork of the pi agent. The installer
+# checks the binary's sha256, puts it in ~/.local/bin and only prints a PATH
+# hint; `omp update` keeps it current.
+log_info "Installing omp (Oh My Pi) from its installer..."
+if (
+    set -o pipefail
+    curl -fsSL https://omp.sh/install | sh
+); then
+    log_success "omp installed"
+else
+    log_warning "omp installation failed; continuing"
 fi
 
 # Doom's agent-shell drives Antigravity through Google's ACP server, which the

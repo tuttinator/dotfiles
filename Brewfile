@@ -34,6 +34,8 @@ brew "biome"
 brew "btop"
 brew "cocoapods"
 brew "codex-acp"    # ACP adapter so agent-shell (Doom) can drive Codex
+brew "opencode"     # coding agent; `opencode acp` serves agent-shell directly
+brew "hermes-agent" if full  # Nous Research's general agent; pulls in Python and node
 brew "dotnet"
 brew "eksctl"
 brew "erlang" if full      # erlang+elixir: mac-mini only

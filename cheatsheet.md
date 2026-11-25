@@ -24,7 +24,8 @@ Keep it in step with the config: it lives in dotfiles/cheatsheet.md.
 | `llm cmd "undo last commit, keep changes"` | Drafts a command to edit before running |
 | `llm "question"` | One-off question |
 | `aichat` | Chat REPL |
-| `claude` / `codex` / `agy` | Coding agents (`agy` is Antigravity) |
+| `claude` / `codex` / `agy` / `omp` / `opencode` / `muse` | Coding agents (`agy` is Antigravity, `omp` is Oh My Pi, `muse` is Meta's Muse Code; `hermes` in the full profile) |
+| `paseo` | Control agents running under the Paseo daemon (the Paseo app also works from a phone) |
 | `tldr tar` | Practical examples (offline, no AI) |
 
 ## Files and disk
